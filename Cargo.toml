@@ -1,0 +1,31 @@
+[package]
+name = "aoc2025"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+num = "0.4.3"
+rayon = "1.11.0"
+took = "0.1.2"
+
+[lib]
+
+[[bin]]
+name = "runner"
+path = "src/bin/runner.rs"
+
+[[bin]]
+name = "runner-par"
+path = "src/bin/runner-par.rs"
+
+[[bin]]
+name = "bench"
+path = "src/bin/bench.rs"
+
+[[bin]]
+name = "day01a"
+path = "src/day01a.rs"
+
+[[bin]]
+name = "day01b"
+path = "src/day01b.rs"

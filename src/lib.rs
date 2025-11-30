@@ -1,0 +1,34 @@
+mod common;
+mod day01a;
+mod day01b;
+// mod day02a;
+// mod day02b;
+
+pub fn jobs() -> &'static [(fn(), &'static str)] {
+    &[
+        (day01a::main, "day01a"),
+        (day01b::main, "day01b"),
+        // (day02a::main, "day02a"),
+        // (day02b::main, "day02b"),
+        // (day03a::main, "day03a"),
+        // (day03b::main, "day03b"),
+        // (day04a::main, "day04a"),
+        // (day04b::main, "day04b"),
+        // (day05a::main, "day05a"),
+        // (day05b::main, "day05b"),
+        // (day06a::main, "day06a"),
+        // (day06b::main, "day06b"),
+        // (day07a::main, "day07a"),
+        // (day07b::main, "day07b"),
+        // (day08a::main, "day08a"),
+        // (day08b::main, "day08b"),
+        // (day09a::main, "day09a"),
+        // (day09b::main, "day09b"),
+        // (day10a::main, "day10a"),
+        // (day10b::main, "day10b"),
+        // (day11a::main, "day11a"),
+        // (day11b::main, "day11b"),
+        // (day12a::main, "day12a"),
+        // (day12b::main, "day12b"),
+    ]
+}
