@@ -22,6 +22,9 @@ cargo +nightly run --release --bin runner-par
 
 # benchmark every day
 cargo +nightly run --release --bin bench
+
+# or use cargo bench to benchmark every day
+cargo +nightly bench --lib days
 ```
 
 ## Other years

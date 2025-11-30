@@ -1,3 +1,4 @@
+extern crate test;
 use crate::common::parse;
 use std::cmp::max;
 
@@ -15,4 +16,15 @@ pub fn main() {
             }
         });
     print!("{} ", max_elf);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[bench]
+    fn bench_main(b: &mut Bencher) {
+        b.iter(|| main());
+    }
 }

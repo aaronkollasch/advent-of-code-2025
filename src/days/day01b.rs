@@ -1,3 +1,4 @@
+extern crate test;
 use crate::common::parse;
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
@@ -22,4 +23,15 @@ pub fn main() {
             }
         });
     print!("{} ", top_elves.iter().map(|e| e.0).sum::<u32>());
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[bench]
+    fn bench_main(b: &mut Bencher) {
+        b.iter(|| main());
+    }
 }
