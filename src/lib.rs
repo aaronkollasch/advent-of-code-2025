@@ -1,8 +1,7 @@
-mod common;
-mod day01a;
-mod day01b;
-// mod day02a;
-// mod day02b;
+pub mod common;
+pub mod days;
+
+use days::*;
 
 pub fn jobs() -> &'static [(fn(), &'static str)] {
     &[

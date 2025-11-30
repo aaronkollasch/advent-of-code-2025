@@ -4,7 +4,7 @@ use std::cmp::max;
 pub fn main() {
     let mut elf_total = 0u32;
     let mut max_elf = 0u32;
-    include_bytes!("../inputs/day01.txt")
+    include_bytes!("../../inputs/day01.txt")
         .split(|b| *b == b'\n')
         .for_each(|l| {
             if l.is_empty() {

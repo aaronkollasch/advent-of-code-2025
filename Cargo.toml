@@ -24,8 +24,16 @@ path = "src/bin/bench.rs"
 
 [[bin]]
 name = "day01a"
-path = "src/day01a.rs"
+path = "src/bin/days/day01a.rs"
 
 [[bin]]
 name = "day01b"
-path = "src/day01b.rs"
+path = "src/bin/days/day01b.rs"
+
+[[bin]]
+name = "day02a"
+path = "src/bin/days/day02a.rs"
+
+[[bin]]
+name = "day02b"
+path = "src/bin/days/day02b.rs"
