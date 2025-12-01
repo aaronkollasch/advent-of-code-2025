@@ -1,3 +1,5 @@
+#![feature(int_roundings)]
+
 pub mod common;
 pub mod days;
 

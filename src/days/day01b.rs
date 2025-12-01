@@ -1,31 +1,107 @@
-use crate::common::parse;
-use std::cmp::Reverse;
-use std::collections::BinaryHeap;
+use crate::common::parse_signed;
 
-pub fn get_result() -> u32 {
-    let num_top = 3;
-    let mut top_elves: BinaryHeap<Reverse<u32>> = BinaryHeap::with_capacity(num_top + 1);
-    for _ in 0..num_top {
-        top_elves.push(Reverse::<u32>(0));
-    }
+type Number = i64;
 
-    let mut elf_total = 0u32;
-    include_bytes!("../../inputs/day01.txt")
+const NUM_POINTS: Number = 100;
+
+enum Rotation {
+    Left(Number),
+    Right(Number),
+}
+
+pub fn get_result() -> Number {
+    let mut dial_state: Number = 50;
+    return include_bytes!("../../inputs/day01.txt")
         .split(|b| *b == b'\n')
-        .for_each(|l| {
-            if l.is_empty() {
-                top_elves.push(Reverse::<u32>(elf_total));
-                top_elves.pop();
-                elf_total = 0;
-            } else {
-                elf_total += parse::<u32>(l);
-            }
-        });
-    return top_elves.iter().map(|e| e.0).sum::<u32>();
+        .filter(|&l| l.len() > 0)
+        .map(|l| {
+            let rot = match l[0] {
+                b'L' => Rotation::Left(parse_signed::<Number>(&l[1..])),
+                b'R' => Rotation::Right(parse_signed::<Number>(&l[1..])),
+                _ => unreachable!(),
+            };
+            let new_dial_state = dial_state
+                + match rot {
+                    Rotation::Left(clicks) => -clicks,
+                    Rotation::Right(clicks) => clicks,
+                };
+            let num_crossings = match new_dial_state {
+                _ if new_dial_state < 0 && dial_state == 0 => {
+                    (-new_dial_state).div_floor(NUM_POINTS)
+                }
+                _ if new_dial_state < 0 => (-new_dial_state).div_floor(NUM_POINTS) + 1,
+                _ if new_dial_state >= NUM_POINTS && new_dial_state % NUM_POINTS == 0 => {
+                    (new_dial_state).div_floor(NUM_POINTS) - 1
+                }
+                _ if new_dial_state >= NUM_POINTS => (new_dial_state).div_floor(NUM_POINTS),
+                _ => 0,
+            };
+            dial_state = new_dial_state.rem_euclid(NUM_POINTS);
+            #[cfg(debug_assertions)]
+            println!(
+                "{} {} {}",
+                str::from_utf8(l).unwrap(),
+                dial_state,
+                num_crossings
+                    + match dial_state {
+                        0 => 1,
+                        _ => 0,
+                    }
+            );
+            num_crossings
+                + match dial_state {
+                    0 => 1,
+                    _ => 0,
+                }
+        })
+        .sum::<Number>();
+}
+
+pub fn get_result_brute() -> usize {
+    let mut dial_state: Number = 50;
+    return include_bytes!("../../inputs/day01.txt")
+        .split(|b| *b == b'\n')
+        .filter(|&l| l.len() > 0)
+        .map(|l| match l[0] {
+            b'L' => Rotation::Left(parse_signed::<Number>(&l[1..])),
+            b'R' => Rotation::Right(parse_signed::<Number>(&l[1..])),
+            _ => unreachable!(),
+        })
+        .flat_map(|rot| {
+            let clicks = match rot {
+                Rotation::Left(clicks) => -clicks,
+                Rotation::Right(clicks) => clicks,
+            };
+            let num_steps = clicks.abs();
+            let states = std::iter::chain(
+                std::iter::repeat_n(
+                    match rot {
+                        Rotation::Left(_) => Some(-1),
+                        Rotation::Right(_) => Some(1),
+                    },
+                    num_steps as usize,
+                ),
+                std::iter::once(None),
+            )
+            .scan(dial_state, |state, m| {
+                match m {
+                    Some(m) => {
+                        *state += m;
+                        *state = state.rem_euclid(NUM_POINTS);
+                        Some(*state)
+                    },
+                    None => None,
+                }
+            });
+            dial_state = (dial_state + clicks).rem_euclid(NUM_POINTS);
+            states
+        })
+        .filter(|&s| s == 0)
+        .count();
 }
 
 pub fn main() {
-    print!("{} ", get_result());
+    print!("{} ", get_result_brute());
 }
 
 #[cfg(test)]
@@ -34,7 +110,7 @@ mod tests {
 
     #[test]
     fn correct_result() {
-        let result = get_result();
-        assert_eq!(result, 210406);
+        let result = get_result_brute();
+        assert_eq!(result, 5963);
     }
 }

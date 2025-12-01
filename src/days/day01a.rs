@@ -1,20 +1,36 @@
 use crate::common::parse;
-use std::cmp::max;
 
-pub fn get_result() -> u32 {
-    let mut elf_total = 0u32;
-    let mut max_elf = 0u32;
-    include_bytes!("../../inputs/day01.txt")
+const NUM_POINTS: u8 = 100;
+
+enum Rotation {
+    Left(u8),
+    Right(u8),
+}
+
+pub fn get_result() -> usize {
+    let mut dial_state = 50u8;
+    return include_bytes!("../../inputs/day01.txt")
         .split(|b| *b == b'\n')
-        .for_each(|l| {
-            if l.is_empty() {
-                max_elf = max(max_elf, elf_total);
-                elf_total = 0;
-            } else {
-                elf_total += parse::<u32>(l);
+        .map(|l| match l[0] {
+            b'L' => Rotation::Left((parse::<usize>(&l[1..]) % NUM_POINTS as usize) as u8),
+            b'R' => Rotation::Right((parse::<usize>(&l[1..]) % NUM_POINTS as usize) as u8),
+            _ => unreachable!(),
+        })
+        .map(|rot| {
+            dial_state = (dial_state
+                + match rot {
+                    Rotation::Left(click) => NUM_POINTS - click,
+                    Rotation::Right(click) => click,
+                })
+            .rem_euclid(NUM_POINTS);
+            #[cfg(debug_assertions)]
+            println!("{}", dial_state);
+            match dial_state {
+                0 => 1,
+                _ => 0,
             }
-        });
-    return max_elf;
+        })
+        .sum::<usize>();
 }
 
 pub fn main() {
@@ -28,6 +44,6 @@ mod tests {
     #[test]
     fn correct_result() {
         let result = get_result();
-        assert_eq!(result, 71924);
+        assert_eq!(result, 1043);
     }
 }
