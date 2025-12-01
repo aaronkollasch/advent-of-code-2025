@@ -8,6 +8,9 @@ num = "0.4.3"
 rayon = "1.11.0"
 took = "0.1.2"
 
+[dev-dependencies]
+criterion = { version = "0.7", features = ["html_reports"] }
+
 [lib]
 
 [[bin]]
@@ -22,6 +25,10 @@ path = "src/bin/runner-par.rs"
 name = "bench"
 path = "src/bin/bench.rs"
 
+[[bench]]
+name = "all-days"
+harness = false
+
 [[bin]]
 name = "day01a"
 path = "src/bin/days/day01a.rs"
@@ -30,10 +37,10 @@ path = "src/bin/days/day01a.rs"
 name = "day01b"
 path = "src/bin/days/day01b.rs"
 
-[[bin]]
-name = "day02a"
-path = "src/bin/days/day02a.rs"
-
-[[bin]]
-name = "day02b"
-path = "src/bin/days/day02b.rs"
+# [[bin]]
+# name = "day02a"
+# path = "src/bin/days/day02a.rs"
+#
+# [[bin]]
+# name = "day02b"
+# path = "src/bin/days/day02b.rs"

@@ -15,16 +15,16 @@ Timing code modified from https://github.com/timvisee/advent-of-code-2022
 First copy the input text files into the `inputs/` directory, and name them by day, e.g. `day01.txt`.
 ```shell
 # run an individual solution in debug mode
-cargo +nightly run --bin day01a
+cargo run --bin day01a
 
 # run everything in parallel
-cargo +nightly run --release --bin runner-par
+cargo run --release --bin runner-par
 
 # benchmark every day
-cargo +nightly run --release --bin bench
+cargo run --release --bin bench
 
-# or use cargo bench to benchmark every day
-cargo +nightly bench --lib days
+# or use criterion to benchmark every day
+cargo bench --bench all-days
 ```
 
 ## Other years

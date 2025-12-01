@@ -1,8 +1,7 @@
-extern crate test;
 use crate::common::parse;
 use std::cmp::max;
 
-pub fn main() {
+pub fn get_result() -> u32 {
     let mut elf_total = 0u32;
     let mut max_elf = 0u32;
     include_bytes!("../../inputs/day01.txt")
@@ -15,16 +14,9 @@ pub fn main() {
                 elf_total += parse::<u32>(l);
             }
         });
-    print!("{} ", max_elf);
+    return max_elf;
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use test::Bencher;
-
-    #[bench]
-    fn bench_main(b: &mut Bencher) {
-        b.iter(|| main());
-    }
+pub fn main() {
+    print!("{} ", get_result());
 }

@@ -1,9 +1,8 @@
-extern crate test;
 use crate::common::parse;
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 
-pub fn main() {
+pub fn get_result() -> u32 {
     let num_top = 3;
     let mut top_elves: BinaryHeap<Reverse<u32>> = BinaryHeap::with_capacity(num_top + 1);
     for _ in 0..num_top {
@@ -22,16 +21,9 @@ pub fn main() {
                 elf_total += parse::<u32>(l);
             }
         });
-    print!("{} ", top_elves.iter().map(|e| e.0).sum::<u32>());
+    return top_elves.iter().map(|e| e.0).sum::<u32>();
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use test::Bencher;
-
-    #[bench]
-    fn bench_main(b: &mut Bencher) {
-        b.iter(|| main());
-    }
+pub fn main() {
+    print!("{} ", get_result());
 }
