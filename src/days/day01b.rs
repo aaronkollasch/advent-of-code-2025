@@ -27,3 +27,14 @@ pub fn get_result() -> u32 {
 pub fn main() {
     print!("{} ", get_result());
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn correct_result() {
+        let result = get_result();
+        assert_eq!(result, 210406);
+    }
+}

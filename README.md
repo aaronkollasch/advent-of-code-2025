@@ -13,18 +13,30 @@ Timing code modified from https://github.com/timvisee/advent-of-code-2022
 ## How to Run
 
 First copy the input text files into the `inputs/` directory, and name them by day, e.g. `day01.txt`.
+
+To run an individual solution in debug mode:
 ```shell
-# run an individual solution in debug mode
 cargo run --bin day01a
+```
 
-# run everything in parallel
+To run everything in parallel:
+```shell
 cargo run --release --bin runner-par
+```
 
-# benchmark every day
+To benchmark every day:
+```shell
 cargo run --release --bin bench
+```
 
-# or use criterion to benchmark every day
+or using criterion:
+```shell
 cargo bench --bench all-days
+```
+
+To run tests:
+```shell
+cargo test --lib
 ```
 
 ## Other years
