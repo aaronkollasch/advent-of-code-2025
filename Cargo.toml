@@ -37,10 +37,10 @@ path = "src/bin/days/day01a.rs"
 name = "day01b"
 path = "src/bin/days/day01b.rs"
 
-# [[bin]]
-# name = "day02a"
-# path = "src/bin/days/day02a.rs"
-#
-# [[bin]]
-# name = "day02b"
-# path = "src/bin/days/day02b.rs"
+[[bin]]
+name = "day02a"
+path = "src/bin/days/day02a.rs"
+
+[[bin]]
+name = "day02b"
+path = "src/bin/days/day02b.rs"
