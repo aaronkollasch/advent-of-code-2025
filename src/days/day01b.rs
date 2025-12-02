@@ -1,6 +1,6 @@
 use crate::common::parse_signed;
 
-type Number = i64;
+type Number = i32;
 
 const NUM_POINTS: Number = 100;
 
