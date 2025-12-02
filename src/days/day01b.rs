@@ -4,10 +4,15 @@ type Number = i64;
 
 const NUM_POINTS: Number = 100;
 
+// TODO: change to struct with direction + num clicks
 enum Rotation {
     Left(Number),
     Right(Number),
 }
+
+// TODO: add function that calculates num crossings
+// and resulting state given initial state and rotation
+// and add tests
 
 pub fn get_result() -> Number {
     let mut dial_state: Number = 50;
@@ -25,16 +30,10 @@ pub fn get_result() -> Number {
                     Rotation::Left(clicks) => -clicks,
                     Rotation::Right(clicks) => clicks,
                 };
-            let num_crossings = match new_dial_state {
-                _ if new_dial_state < 0 && dial_state == 0 => {
-                    (-new_dial_state).div_floor(NUM_POINTS)
-                }
-                _ if new_dial_state < 0 => (-new_dial_state).div_floor(NUM_POINTS) + 1,
-                _ if new_dial_state >= NUM_POINTS && new_dial_state % NUM_POINTS == 0 => {
-                    (new_dial_state).div_floor(NUM_POINTS) - 1
-                }
-                _ if new_dial_state >= NUM_POINTS => (new_dial_state).div_floor(NUM_POINTS),
-                _ => 0,
+            let num_crossings = match new_dial_state > 0 {
+                true => new_dial_state.div_floor(NUM_POINTS),
+                false if dial_state == 0 => (-new_dial_state).div_floor(NUM_POINTS),
+                false => (-new_dial_state).div_floor(NUM_POINTS) + 1,
             };
             dial_state = new_dial_state.rem_euclid(NUM_POINTS);
             #[cfg(debug_assertions)]
@@ -43,16 +42,8 @@ pub fn get_result() -> Number {
                 str::from_utf8(l).unwrap(),
                 dial_state,
                 num_crossings
-                    + match dial_state {
-                        0 => 1,
-                        _ => 0,
-                    }
             );
             num_crossings
-                + match dial_state {
-                    0 => 1,
-                    _ => 0,
-                }
         })
         .sum::<Number>();
 }
@@ -101,7 +92,7 @@ pub fn get_result_brute() -> usize {
 }
 
 pub fn main() {
-    print!("{} ", get_result_brute());
+    print!("{} ", get_result());
 }
 
 #[cfg(test)]
@@ -110,6 +101,12 @@ mod tests {
 
     #[test]
     fn correct_result() {
+        let result = get_result();
+        assert_eq!(result, 5963);
+    }
+
+    #[test]
+    fn correct_result_brute() {
         let result = get_result_brute();
         assert_eq!(result, 5963);
     }
