@@ -1,18 +1,73 @@
-use crate::common::parse_signed;
+use crate::common::{parse, parse_signed};
 
-type Number = i32;
+enum Direction {
+    Left,
+    Right,
+}
 
-const NUM_POINTS: Number = 100;
+type UNumber = u32;
+const UNUM_POINTS: UNumber = 100;
 
-// TODO: change to struct with direction + num clicks
-enum Rotation {
-    Left(Number),
-    Right(Number),
+struct Instruction {
+    direction: Direction,
+    clicks_rem: UNumber,
+    clicks_div: UNumber,
 }
 
 // TODO: add function that calculates num crossings
 // and resulting state given initial state and rotation
 // and add tests
+
+
+pub fn get_result_unsigned() -> UNumber {
+    let mut dial_state: UNumber = 50;
+    let result = include_bytes!("../../inputs/day01.txt")
+        .split(|b| *b == b'\n')
+        .filter(|&l| l.len() > 0)
+        .map(|l| {
+            let clicks = parse::<UNumber>(&l[1..]);
+            let (clicks_div, clicks_rem) = (clicks / UNUM_POINTS, clicks % UNUM_POINTS);
+            let inst = match l[0] {
+                b'L' => Instruction { direction: Direction::Left, clicks_rem, clicks_div},
+                b'R' => Instruction { direction: Direction::Right, clicks_rem, clicks_div},
+                _ => unreachable!(),
+            };
+            let new_dial_state = (dial_state + match inst.direction {
+                Direction::Left => UNUM_POINTS - inst.clicks_rem,
+                Direction::Right => inst.clicks_rem,
+            }).rem_euclid(UNUM_POINTS);
+            let num_crossings = inst.clicks_div + match inst.direction {
+                Direction::Left if dial_state == 0 => 0,
+                Direction::Left if inst.clicks_rem >= dial_state => 1,
+                Direction::Left => 0,
+                Direction::Right if inst.clicks_rem + dial_state >= UNUM_POINTS => 1,
+                Direction::Right => 0,
+            };
+            #[cfg(debug_assertions)]
+            println!(
+                "{} + {}=({} {}) -> {} {}",
+                dial_state,
+                str::from_utf8(l).unwrap(),
+                inst.clicks_rem,
+                inst.clicks_div,
+                new_dial_state,
+                num_crossings,
+            );
+            dial_state = new_dial_state;
+            num_crossings
+        })
+        .sum::<UNumber>();
+    return result;
+}
+
+type Number = i32;
+
+const NUM_POINTS: Number = 100;
+
+enum Rotation {
+    Left(Number),
+    Right(Number),
+}
 
 pub fn get_result() -> Number {
     let mut dial_state: Number = 50;
@@ -90,7 +145,7 @@ pub fn get_result_brute() -> usize {
 }
 
 pub fn main() {
-    print!("{} ", get_result());
+    print!("{} ", get_result_unsigned());
 }
 
 #[cfg(test)]
@@ -100,6 +155,12 @@ mod tests {
     #[test]
     fn correct_result() {
         let result = get_result();
+        assert_eq!(result, 5963);
+    }
+
+    #[test]
+    fn correct_result_unsigned() {
+        let result = get_result_unsigned();
         assert_eq!(result, 5963);
     }
 
