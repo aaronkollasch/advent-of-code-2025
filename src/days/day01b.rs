@@ -74,15 +74,13 @@ pub fn get_result_brute() -> usize {
                 ),
                 std::iter::once(None),
             )
-            .scan(dial_state, |state, m| {
-                match m {
-                    Some(m) => {
-                        *state += m;
-                        *state = state.rem_euclid(NUM_POINTS);
-                        Some(*state)
-                    },
-                    None => None,
+            .scan(dial_state, |state, m| match m {
+                Some(m) => {
+                    *state += m;
+                    *state = state.rem_euclid(NUM_POINTS);
+                    Some(*state)
                 }
+                None => None,
             });
             dial_state = (dial_state + clicks).rem_euclid(NUM_POINTS);
             states
