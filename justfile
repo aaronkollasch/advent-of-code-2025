@@ -8,7 +8,7 @@ test:
     cargo +nightly test --lib
 
 watch:
-    cargo watch --exec '+nightly test --lib'
+    bacon test
 
 bench-all:
     cargo +nightly bench --bench all-days
