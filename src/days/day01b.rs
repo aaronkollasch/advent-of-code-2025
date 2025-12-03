@@ -85,10 +85,9 @@ pub fn get_result() -> Number {
                     Rotation::Left(clicks) => -clicks,
                     Rotation::Right(clicks) => clicks,
                 };
-            let num_crossings = match new_dial_state > 0 {
-                true => new_dial_state.div_floor(NUM_POINTS),
-                false if dial_state == 0 => (-new_dial_state).div_floor(NUM_POINTS),
-                false => (-new_dial_state).div_floor(NUM_POINTS) + 1,
+            let num_crossings = match rot {
+                Rotation::Left(_) => (dial_state - 1).div_euclid(NUM_POINTS) - (new_dial_state - 1).div_euclid(NUM_POINTS),
+                Rotation::Right(_) => new_dial_state.div_euclid(NUM_POINTS),
             };
             dial_state = new_dial_state.rem_euclid(NUM_POINTS);
             #[cfg(debug_assertions)]
@@ -145,7 +144,7 @@ pub fn get_result_brute() -> usize {
 }
 
 pub fn main() {
-    print!("{} ", get_result_unsigned());
+    print!("{} ", get_result());
 }
 
 #[cfg(test)]

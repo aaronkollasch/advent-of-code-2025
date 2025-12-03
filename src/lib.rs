@@ -1,4 +1,3 @@
-#![feature(int_roundings)]
 #![feature(slice_split_once)]
 
 pub mod common;
