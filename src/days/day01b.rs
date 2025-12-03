@@ -21,9 +21,9 @@ struct Instruction {
 
 pub fn get_result_unsigned() -> UNumber {
     let mut dial_state: UNumber = 50;
-    let result = include_bytes!("../../inputs/day01.txt")
+    include_bytes!("../../inputs/day01.txt")
         .split(|b| *b == b'\n')
-        .filter(|&l| l.len() > 0)
+        .filter(|&l| !l.is_empty())
         .map(|l| {
             let clicks = parse::<UNumber>(&l[1..]);
             let (clicks_div, clicks_rem) = (clicks / UNUM_POINTS, clicks % UNUM_POINTS);
@@ -56,8 +56,7 @@ pub fn get_result_unsigned() -> UNumber {
             dial_state = new_dial_state;
             num_crossings
         })
-        .sum::<UNumber>();
-    return result;
+        .sum::<UNumber>()
 }
 
 type Number = i32;
@@ -71,9 +70,9 @@ enum Rotation {
 
 pub fn get_result() -> Number {
     let mut dial_state: Number = 50;
-    return include_bytes!("../../inputs/day01.txt")
+    include_bytes!("../../inputs/day01.txt")
         .split(|b| *b == b'\n')
-        .filter(|&l| l.len() > 0)
+        .filter(|&l| !l.is_empty())
         .map(|l| {
             let rot = match l[0] {
                 b'L' => Rotation::Left(parse_signed::<Number>(&l[1..])),
@@ -99,14 +98,14 @@ pub fn get_result() -> Number {
             );
             num_crossings
         })
-        .sum::<Number>();
+        .sum::<Number>()
 }
 
 pub fn get_result_brute() -> usize {
     let mut dial_state: Number = 50;
-    return include_bytes!("../../inputs/day01.txt")
+    include_bytes!("../../inputs/day01.txt")
         .split(|b| *b == b'\n')
-        .filter(|&l| l.len() > 0)
+        .filter(|&l| !l.is_empty())
         .map(|l| match l[0] {
             b'L' => Rotation::Left(parse_signed::<Number>(&l[1..])),
             b'R' => Rotation::Right(parse_signed::<Number>(&l[1..])),
@@ -140,7 +139,7 @@ pub fn get_result_brute() -> usize {
             states
         })
         .filter(|&s| s == 0)
-        .count();
+        .count()
 }
 
 pub fn main() {

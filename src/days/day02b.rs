@@ -5,7 +5,7 @@ pub fn id_is_invalid(id: usize) -> bool {
     let digits = digits_s.as_bytes();
     let l = digits.len();
     for block_size in 1..=6 {
-        if l == block_size || l % block_size > 0 {
+        if l == block_size || !l.is_multiple_of(block_size) {
             continue;
         }
         let mut chunks = digits.chunks(block_size);
@@ -14,11 +14,11 @@ pub fn id_is_invalid(id: usize) -> bool {
             return true;
         }
     }
-    return false;
+    false
 }
 
 pub fn get_result() -> usize {
-    let result = include_bytes!("../../inputs/day02.txt")
+    include_bytes!("../../inputs/day02.txt")
         .split(|b| *b == b',')
         .flat_map(|r| {
             let (from, to) = r.split_once(|&x| x == b'-').unwrap();
@@ -32,8 +32,7 @@ pub fn get_result() -> usize {
             println!("{} is invalid", id);
             id
         } else { 0 })
-        .sum::<usize>();
-    return result;
+        .sum::<usize>()
 }
 
 pub fn main() {

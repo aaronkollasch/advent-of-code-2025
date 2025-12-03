@@ -9,7 +9,7 @@ enum Rotation {
 
 pub fn get_result() -> usize {
     let mut dial_state = 50u8;
-    return include_bytes!("../../inputs/day01.txt")
+    include_bytes!("../../inputs/day01.txt")
         .split(|b| *b == b'\n')
         .map(|l| match l[0] {
             b'L' => Rotation::Left((parse::<usize>(&l[1..]) % NUM_POINTS as usize) as u8),
@@ -30,7 +30,7 @@ pub fn get_result() -> usize {
                 _ => 0,
             }
         })
-        .sum::<usize>();
+        .sum::<usize>()
 }
 
 pub fn main() {

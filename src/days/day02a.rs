@@ -3,14 +3,14 @@ use crate::common::parse;
 pub fn id_is_invalid(id: usize) -> bool {
     let digits = id.to_string();
     let l = digits.len();
-    if l % 2 > 0 {
+    if !l.is_multiple_of(2) {
         return false;
     }
-    return digits[..l / 2] == digits[l / 2..];
+    digits[..l / 2] == digits[l / 2..]
 }
 
 pub fn get_result() -> usize {
-    let result = include_bytes!("../../inputs/day02.txt")
+    include_bytes!("../../inputs/day02.txt")
         .split(|b| *b == b',')
         .flat_map(|r| {
             let (from, to) = r.split_once(|&x| x == b'-').unwrap();
@@ -20,8 +20,7 @@ pub fn get_result() -> usize {
             from..=to
         })
         .map(|id| if id_is_invalid(id) { id } else { 0 })
-        .sum::<usize>();
-    return result;
+        .sum::<usize>()
 }
 
 pub fn main() {

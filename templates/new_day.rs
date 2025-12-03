@@ -1,10 +1,10 @@
 // use crate::common::parse;
 
 pub fn get_result() -> usize {
-    let result = include_bytes!("../../inputs/DAY.txt")
+    include_bytes!("../../inputs/DAY.txt")
         .split(|b| *b == b'\n')
-        .count();
-    return result;
+        .filter(|&l| !l.is_empty())
+        .count()
 }
 
 pub fn main() {
