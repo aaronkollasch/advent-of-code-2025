@@ -10,14 +10,19 @@ pub fn get_result() -> usize {
             let mut highest_pos = 0usize;
             for digits_place in (0..12).rev() {
                 let mut new_highest_pos = highest_pos;
-                l[highest_pos..l.len() - digits_place].iter()
+                let _ = l[highest_pos..l.len() - digits_place].iter()
+                    // .take_while(|_| highest_val < 9)
                     .map(|c| c - b'0')
                     .enumerate()
-                    .for_each(|(i, c)| {
+                    .try_for_each(|(i, c)| {
                         if c > highest_val {
                             highest_val = c;
                             new_highest_pos = i;
                         }
+                        if c == 9 {
+                            return Err(())
+                        }
+                        Ok(())
                     });
                 accum += highest_val as usize * 10usize.pow(digits_place as u32);
                 #[cfg(debug_assertions)]

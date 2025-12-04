@@ -7,16 +7,19 @@ pub fn get_result() -> usize {
         .map(|l| {
             let mut highest_val = 0u8;
             let mut highest_pos = 0usize;
-            l.iter()
+            let _ = l.iter()
                 .take(l.len() - 1)
                 .map(|c| c - b'0')
                 .enumerate()
-                .for_each(|(i, c)| {
+                .try_for_each(|(i, c)| {
                     if c > highest_val {
                         highest_val = c;
                         highest_pos = i;
                     }
-                    // TODO: break iter if highest_val == 9
+                    if c == 9 {
+                        return Err(())
+                    }
+                    Ok(())
                 });
             highest_val as usize * 10
                 + l[highest_pos + 1..].iter().map(|c| c - b'0').max().unwrap() as usize
