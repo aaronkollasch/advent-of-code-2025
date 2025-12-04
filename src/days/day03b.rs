@@ -1,0 +1,48 @@
+// use crate::common::parse;
+
+pub fn get_result() -> usize {
+    include_bytes!("../../inputs/day03.txt")
+        .split(|b| *b == b'\n')
+        .filter(|&l| !l.is_empty())
+        .map(|l| {
+            let mut accum = 0usize;
+            let mut highest_val = 0u8;
+            let mut highest_pos = 0usize;
+            for digits_place in (0..12).rev() {
+                let mut new_highest_pos = highest_pos;
+                l[highest_pos..l.len() - digits_place].iter()
+                    .map(|c| c - b'0')
+                    .enumerate()
+                    .for_each(|(i, c)| {
+                        if c > highest_val {
+                            highest_val = c;
+                            new_highest_pos = i;
+                        }
+                    });
+                accum += highest_val as usize * 10usize.pow(digits_place as u32);
+                #[cfg(debug_assertions)]
+                println!("{} {} {} {} {}", digits_place, highest_pos, new_highest_pos, highest_val, accum);
+                highest_val = 0;
+                highest_pos += new_highest_pos + 1;
+            }
+            #[cfg(debug_assertions)]
+            println!("{} {}", std::str::from_utf8(l).unwrap(), accum);
+            accum
+        })
+        .sum()
+}
+
+pub fn main() {
+    print!("{} ", get_result());
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn correct_result() {
+        let result = get_result();
+        assert_eq!(result, 172740584266849);
+    }
+}

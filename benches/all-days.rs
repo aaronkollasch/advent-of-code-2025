@@ -6,8 +6,8 @@ fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("day01b", |b| b.iter(|| day01b::get_result()));
     c.bench_function("day02a", |b| b.iter(|| day02a::get_result()));
     c.bench_function("day02b", |b| b.iter(|| day02b::get_result()));
-    // c.bench_function("day03a", |b| b.iter(|| day03a::get_result()));
-    // c.bench_function("day03b", |b| b.iter(|| day03b::get_result()));
+    c.bench_function("day03a", |b| b.iter(|| day03a::get_result()));
+    c.bench_function("day03b", |b| b.iter(|| day03b::get_result()));
     // c.bench_function("day04a", |b| b.iter(|| day04a::get_result()));
     // c.bench_function("day04b", |b| b.iter(|| day04b::get_result()));
     // c.bench_function("day05a", |b| b.iter(|| day05a::get_result()));
