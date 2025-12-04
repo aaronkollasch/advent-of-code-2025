@@ -4,6 +4,9 @@ pub fn get_result() -> usize {
     include_bytes!("../../inputs/DAY.txt")
         .split(|b| *b == b'\n')
         .filter(|&l| !l.is_empty())
+        .map(|l| {
+            l
+        })
         .count()
 }
 
