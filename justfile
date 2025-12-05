@@ -4,14 +4,17 @@ run DAY:
 run-all:
     cargo +nightly run --release --bin runner
 
-test:
+test DAY:
+    cargo +nightly test --lib {{DAY}}
+
+test-all:
     cargo +nightly test --lib
 
 watch:
     bacon test
 
-bench-all:
-    cargo +nightly bench --bench all-days
-
 bench DAY:
     cargo +nightly bench --bench all-days -- {{DAY}}
+
+bench-all:
+    cargo +nightly bench --bench all-days
