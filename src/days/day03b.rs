@@ -1,13 +1,13 @@
-// use crate::common::parse;
+type Number = usize;
 
-pub fn get_result() -> usize {
+pub fn get_result() -> Number {
     include_bytes!("../../inputs/day03.txt")
         .split(|b| *b == b'\n')
         .filter(|&l| !l.is_empty())
         .map(|l| {
-            let mut accum = 0usize;
+            let mut accum = 0;
             let mut highest_val = 0u8;
-            let mut highest_pos = 0usize;
+            let mut highest_pos = 0;
             for digits_place in (0..12).rev() {
                 let mut new_highest_pos = highest_pos;
                 let _ = l[highest_pos..l.len() - digits_place].iter()
@@ -24,7 +24,7 @@ pub fn get_result() -> usize {
                         }
                         Ok(())
                     });
-                accum += highest_val as usize * 10usize.pow(digits_place as u32);
+                accum += highest_val as Number * (10 as Number).pow(digits_place as u32);
                 #[cfg(debug_assertions)]
                 println!("{} {} {} {} {}", digits_place, highest_pos, new_highest_pos, highest_val, accum);
                 highest_val = 0;
