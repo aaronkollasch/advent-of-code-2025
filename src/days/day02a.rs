@@ -1,5 +1,8 @@
 use crate::common::parse;
 
+// TODO: see https://www.reddit.com/r/adventofcode/comments/1pcgyr8/2025_day_2_part_2_python_very_efficient_olog_max/
+// and https://github.com/jimm89/AdventOfCode2025/blob/main/Day%202/Day%202.ipynb
+
 pub fn id_is_invalid(id: usize) -> bool {
     let digits = id.to_string();
     let l = digits.len();
