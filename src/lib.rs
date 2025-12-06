@@ -1,4 +1,5 @@
 #![feature(slice_split_once)]
+#![feature(new_range_api)]
 
 pub mod common;
 pub mod days;
@@ -13,10 +14,10 @@ pub fn jobs() -> &'static [(fn(), &'static str)] {
         (day02b::main, "day02b"),
         (day03a::main, "day03a"),
         (day03b::main, "day03b"),
-        // (day04a::main, "day04a"),
-        // (day04b::main, "day04b"),
-        // (day05a::main, "day05a"),
-        // (day05b::main, "day05b"),
+        (day04a::main, "day04a"),
+        (day04b::main, "day04b"),
+        (day05a::main, "day05a"),
+        (day05b::main, "day05b"),
         // (day06a::main, "day06a"),
         // (day06b::main, "day06b"),
         // (day07a::main, "day07a"),

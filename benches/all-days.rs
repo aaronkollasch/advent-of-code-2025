@@ -8,10 +8,10 @@ fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("day02b", |b| b.iter(|| day02b::get_result()));
     c.bench_function("day03a", |b| b.iter(|| day03a::get_result()));
     c.bench_function("day03b", |b| b.iter(|| day03b::get_result()));
-    // c.bench_function("day04a", |b| b.iter(|| day04a::get_result()));
-    // c.bench_function("day04b", |b| b.iter(|| day04b::get_result()));
-    // c.bench_function("day05a", |b| b.iter(|| day05a::get_result()));
-    // c.bench_function("day05b", |b| b.iter(|| day05b::get_result()));
+    c.bench_function("day04a", |b| b.iter(|| day04a::get_result()));
+    c.bench_function("day04b", |b| b.iter(|| day04b::get_result()));
+    c.bench_function("day05a", |b| b.iter(|| day05a::get_result()));
+    c.bench_function("day05b", |b| b.iter(|| day05b::get_result()));
     // c.bench_function("day06a", |b| b.iter(|| day06a::get_result()));
     // c.bench_function("day06b", |b| b.iter(|| day06b::get_result()));
     // c.bench_function("day07a", |b| b.iter(|| day07a::get_result()));
