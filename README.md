@@ -16,27 +16,27 @@ First copy the input text files into the `inputs/` directory, and name them by d
 
 To run an individual solution in debug mode:
 ```shell
-cargo run --bin day01a
+cargo +nightly run --bin day01a
 ```
 
 To run everything in parallel:
 ```shell
-cargo run --release --bin runner-par
+cargo +nightly run --release --bin runner-par
 ```
 
 To benchmark every day:
 ```shell
-cargo run --release --bin bench
+cargo +nightly run --release --bin bench
 ```
 
 or using criterion:
 ```shell
-cargo bench --bench all-days
+cargo +nightly bench --bench all-days
 ```
 
 To run tests:
 ```shell
-cargo test --lib
+cargo +nightly test --lib
 ```
 
 ## Other years
