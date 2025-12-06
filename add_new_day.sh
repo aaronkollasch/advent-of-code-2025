@@ -2,6 +2,8 @@
 
 DAY="$1"
 [[ -z "$DAY" ]] && echo "make_new_day.sh dayXX" && exit 1
+[[ -e "src/days/${DAY}a.rs" ]] && echo "day already exists" && exit 1
+[[ -e "src/days/${DAY}b.rs" ]] && echo "day already exists" && exit 1
 
 touch "inputs/${DAY}.txt"
 touch "inputs/${DAY}.example.txt"
