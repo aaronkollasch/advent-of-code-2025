@@ -18,7 +18,7 @@ pub fn parse_u8(b: &[u8]) -> u8 {
 #[inline]
 pub fn parse<T>(b: &[u8]) -> T
 where
-    T: PrimInt + Unsigned + Sum + Product,
+    T: PrimInt + Sum + Product,
 {
     b.iter().fold(T::zero(), |acc, x| {
         acc * T::from(10).unwrap() + T::from(x - b'0').unwrap()
