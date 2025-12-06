@@ -6,8 +6,8 @@ type Number = usize;
 type Pos = Vec2<Number>;
 
 #[allow(dead_code)]
-const MAX_COLS: usize = 256;
-const MAX_ROWS: usize = 256;
+const MAX_COLS: usize = 139;
+const MAX_ROWS: usize = 139;
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 struct Grid {
