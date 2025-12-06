@@ -7,9 +7,9 @@ enum Rotation {
     Right(u8),
 }
 
-pub fn get_result() -> usize {
+pub fn get_result(input: &[u8]) -> usize {
     let mut dial_state = 50u8;
-    include_bytes!("../../inputs/day01.txt")
+    input
         .split(|b| *b == b'\n')
         .map(|l| match l[0] {
             b'L' => Rotation::Left((parse::<usize>(&l[1..]) % NUM_POINTS as usize) as u8),
@@ -34,7 +34,7 @@ pub fn get_result() -> usize {
 }
 
 pub fn main() {
-    print!("{} ", get_result());
+    print!("{} ", get_result(include_bytes!("../../inputs/day01.txt")));
 }
 
 #[cfg(test)]
@@ -42,8 +42,14 @@ mod tests {
     use super::*;
 
     #[test]
+    fn correct_example_result() {
+        let result = get_result(include_bytes!("../../inputs/day01.example.txt"));
+        assert_eq!(result, 3);
+    }
+
+    #[test]
     fn correct_result() {
-        let result = get_result();
+        let result = get_result(include_bytes!("../../inputs/day01.txt"));
         assert_eq!(result, 1043);
     }
 }

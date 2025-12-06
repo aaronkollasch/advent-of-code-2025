@@ -19,9 +19,9 @@ struct Instruction {
 // and add tests
 
 
-pub fn get_result_unsigned() -> UNumber {
+pub fn get_result_unsigned(input: &[u8]) -> UNumber {
     let mut dial_state: UNumber = 50;
-    include_bytes!("../../inputs/day01.txt")
+    input
         .split(|b| *b == b'\n')
         .filter(|&l| !l.is_empty())
         .map(|l| {
@@ -68,9 +68,9 @@ enum Rotation {
     Right(Number),
 }
 
-pub fn get_result() -> Number {
+pub fn get_result(input: &[u8]) -> Number {
     let mut dial_state: Number = 50;
-    include_bytes!("../../inputs/day01.txt")
+    input
         .split(|b| *b == b'\n')
         .filter(|&l| !l.is_empty())
         .map(|l| {
@@ -101,9 +101,9 @@ pub fn get_result() -> Number {
         .sum::<Number>()
 }
 
-pub fn get_result_brute() -> usize {
+pub fn get_result_brute(input: &[u8]) -> usize {
     let mut dial_state: Number = 50;
-    include_bytes!("../../inputs/day01.txt")
+    input
         .split(|b| *b == b'\n')
         .filter(|&l| !l.is_empty())
         .map(|l| match l[0] {
@@ -143,7 +143,7 @@ pub fn get_result_brute() -> usize {
 }
 
 pub fn main() {
-    print!("{} ", get_result());
+    print!("{} ", get_result(include_bytes!("../../inputs/day01.txt")));
 }
 
 #[cfg(test)]
@@ -151,20 +151,26 @@ mod tests {
     use super::*;
 
     #[test]
+    fn correct_example_result() {
+        let result = get_result(include_bytes!("../../inputs/day01.example.txt"));
+        assert_eq!(result, 6);
+    }
+
+    #[test]
     fn correct_result() {
-        let result = get_result();
+        let result = get_result(include_bytes!("../../inputs/day01.txt"));
         assert_eq!(result, 5963);
     }
 
     #[test]
     fn correct_result_unsigned() {
-        let result = get_result_unsigned();
+        let result = get_result_unsigned(include_bytes!("../../inputs/day01.txt"));
         assert_eq!(result, 5963);
     }
 
     #[test]
     fn correct_result_brute() {
-        let result = get_result_brute();
+        let result = get_result_brute(include_bytes!("../../inputs/day01.txt"));
         assert_eq!(result, 5963);
     }
 }

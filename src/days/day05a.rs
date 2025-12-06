@@ -1,8 +1,8 @@
 use crate::common::parse;
 use core::range::RangeInclusive;
 
-pub fn get_result() -> usize {
-    let database = include_bytes!("../../inputs/day05.txt");
+pub fn get_result(input: &[u8]) -> usize {
+    let database = input;
     let split_index = database.windows(2).position(|c| c == *b"\n\n").unwrap();
     let fresh_ranges: Vec<RangeInclusive<usize>> = database[0..split_index]
         .split(|b| *b == b'\n')
@@ -26,7 +26,7 @@ pub fn get_result() -> usize {
 }
 
 pub fn main() {
-    print!("{} ", get_result());
+    print!("{} ", get_result(include_bytes!("../../inputs/day05.txt")));
 }
 
 #[cfg(test)]
@@ -34,8 +34,14 @@ mod tests {
     use super::*;
 
     #[test]
+    fn correct_example_result() {
+        let result = get_result(include_bytes!("../../inputs/day05.example.txt"));
+        assert_eq!(result, 3);
+    }
+
+    #[test]
     fn correct_result() {
-        let result = get_result();
+        let result = get_result(include_bytes!("../../inputs/day05.txt"));
         assert_eq!(result, 811);
     }
 }

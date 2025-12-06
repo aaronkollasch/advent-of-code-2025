@@ -3,8 +3,8 @@ use crate::common::parse_iter;
 
 type Number = usize;
 
-pub fn get_result() -> usize {
-    let mut lines: Vec<&[u8]> = include_bytes!("../../inputs/day06.txt")
+pub fn get_result(input: &[u8]) -> usize {
+    let mut lines: Vec<&[u8]> = input
         .split(|&b| b == b'\n')
         .filter(|&l| !l.is_empty())
         .collect();
@@ -36,7 +36,7 @@ pub fn get_result() -> usize {
 }
 
 pub fn main() {
-    print!("{} ", get_result());
+    print!("{} ", get_result(include_bytes!("../../inputs/day06.txt")));
 }
 
 #[cfg(test)]
@@ -44,8 +44,14 @@ mod tests {
     use super::*;
 
     #[test]
+    fn correct_example_result() {
+        let result = get_result(include_bytes!("../../inputs/day06.example.txt"));
+        assert_eq!(result, 4277556);
+    }
+
+    #[test]
     fn correct_result() {
-        let result = get_result();
+        let result = get_result(include_bytes!("../../inputs/day06.txt"));
         assert_eq!(result, 5227286044585);
     }
 }

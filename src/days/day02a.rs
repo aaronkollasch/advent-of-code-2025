@@ -12,8 +12,8 @@ pub fn id_is_invalid(id: usize) -> bool {
     digits[..l / 2] == digits[l / 2..]
 }
 
-pub fn get_result() -> usize {
-    include_bytes!("../../inputs/day02.txt")
+pub fn get_result(input: &[u8]) -> usize {
+    input
         .split(|b| *b == b',')
         .flat_map(|r| {
             let (from, to) = r.split_once(|&x| x == b'-').unwrap();
@@ -27,7 +27,7 @@ pub fn get_result() -> usize {
 }
 
 pub fn main() {
-    print!("{} ", get_result());
+    print!("{} ", get_result(include_bytes!("../../inputs/day02.txt")));
 }
 
 #[cfg(test)]
@@ -35,8 +35,14 @@ mod tests {
     use super::*;
 
     #[test]
+    fn correct_example_result() {
+        let result = get_result(include_bytes!("../../inputs/day02.example.txt"));
+        assert_eq!(result, 1227775554);
+    }
+
+    #[test]
     fn correct_result() {
-        let result = get_result();
+        let result = get_result(include_bytes!("../../inputs/day02.txt"));
         assert_eq!(result, 34826702005);
     }
 }

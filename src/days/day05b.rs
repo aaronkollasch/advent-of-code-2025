@@ -4,8 +4,8 @@ use std::cmp::max;
 
 type Number = usize;
 
-pub fn get_result() -> Number {
-    let database = include_bytes!("../../inputs/day05.txt");
+pub fn get_result(input: &[u8]) -> Number {
+    let database = input;
     let split_index = database.windows(2).position(|c| c == *b"\n\n").unwrap();
     let mut fresh_ranges: Vec<RangeInclusive<Number>> = database[0..split_index]
         .split(|b| *b == b'\n')
@@ -40,7 +40,7 @@ pub fn get_result() -> Number {
 }
 
 pub fn main() {
-    print!("{} ", get_result());
+    print!("{} ", get_result(include_bytes!("../../inputs/day05.txt")));
 }
 
 #[cfg(test)]
@@ -48,8 +48,14 @@ mod tests {
     use super::*;
 
     #[test]
+    fn correct_example_result() {
+        let result = get_result(include_bytes!("../../inputs/day05.example.txt"));
+        assert_eq!(result, 14);
+    }
+
+    #[test]
     fn correct_result() {
-        let result = get_result();
+        let result = get_result(include_bytes!("../../inputs/day05.txt"));
         assert_eq!(result, 338189277144473);
     }
 }

@@ -34,9 +34,9 @@ impl Grid {
     }
 }
 
-pub fn get_result() -> usize {
+pub fn get_result(input: &[u8]) -> usize {
     let mut grid = Grid::new(MAX_COLS, MAX_ROWS);
-    include_bytes!("../../inputs/day04.txt")
+    input
         .split(|b| *b == b'\n')
         .filter(|&l| !l.is_empty())
         .enumerate()
@@ -97,7 +97,7 @@ pub fn get_result() -> usize {
 }
 
 pub fn main() {
-    print!("{} ", get_result());
+    print!("{} ", get_result(include_bytes!("../../inputs/day04.txt")));
 }
 
 #[cfg(test)]
@@ -105,8 +105,14 @@ mod tests {
     use super::*;
 
     #[test]
+    fn correct_example_result() {
+        let result = get_result(include_bytes!("../../inputs/day04.example.txt"));
+        assert_eq!(result, 43);
+    }
+
+    #[test]
     fn correct_result() {
-        let result = get_result();
+        let result = get_result(include_bytes!("../../inputs/day04.txt"));
         assert_eq!(result, 8727);
     }
 }

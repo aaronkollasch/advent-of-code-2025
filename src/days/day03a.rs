@@ -1,7 +1,7 @@
 // use crate::common::parse;
 
-pub fn get_result() -> usize {
-    include_bytes!("../../inputs/day03.txt")
+pub fn get_result(input: &[u8]) -> usize {
+    input
         .split(|b| *b == b'\n')
         .filter(|&l| !l.is_empty())
         .map(|l| {
@@ -28,7 +28,7 @@ pub fn get_result() -> usize {
 }
 
 pub fn main() {
-    print!("{} ", get_result());
+    print!("{} ", get_result(include_bytes!("../../inputs/day03.txt")));
 }
 
 #[cfg(test)]
@@ -36,8 +36,14 @@ mod tests {
     use super::*;
 
     #[test]
+    fn correct_example_result() {
+        let result = get_result(include_bytes!("../../inputs/day03.example.txt"));
+        assert_eq!(result, 357);
+    }
+
+    #[test]
     fn correct_result() {
-        let result = get_result();
+        let result = get_result(include_bytes!("../../inputs/day03.txt"));
         assert_eq!(result, 17408);
     }
 }
