@@ -18,3 +18,6 @@ bench DAY:
 
 bench-all:
     cargo +nightly bench --bench all-days
+
+bench-builtin:
+    cargo +nightly run --release --bin bench
