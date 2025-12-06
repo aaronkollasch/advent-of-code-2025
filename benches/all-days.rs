@@ -12,8 +12,8 @@ fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("day04b", |b| b.iter(|| day04b::get_result()));
     c.bench_function("day05a", |b| b.iter(|| day05a::get_result()));
     c.bench_function("day05b", |b| b.iter(|| day05b::get_result()));
-    // c.bench_function("day06a", |b| b.iter(|| day06a::get_result()));
-    // c.bench_function("day06b", |b| b.iter(|| day06b::get_result()));
+    c.bench_function("day06a", |b| b.iter(|| day06a::get_result()));
+    c.bench_function("day06b", |b| b.iter(|| day06b::get_result()));
     // c.bench_function("day07a", |b| b.iter(|| day07a::get_result()));
     // c.bench_function("day07b", |b| b.iter(|| day07b::get_result()));
     // c.bench_function("day08a", |b| b.iter(|| day08a::get_result()));

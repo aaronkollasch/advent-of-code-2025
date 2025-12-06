@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+itertools = "0.14.0"
 num = "0.4.3"
 primitive-types = "0.14.0"
 rayon = "1.11.0"
@@ -70,3 +71,11 @@ path = "src/bin/days/day05a.rs"
 [[bin]]
 name = "day05b"
 path = "src/bin/days/day05b.rs"
+
+[[bin]]
+name = "day06a"
+path = "src/bin/days/day06a.rs"
+
+[[bin]]
+name = "day06b"
+path = "src/bin/days/day06b.rs"

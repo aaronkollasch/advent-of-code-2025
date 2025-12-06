@@ -26,6 +26,31 @@ where
 }
 
 #[inline]
+pub fn parse_iter<T, I>(iter: I) -> T
+where
+    I: Iterator<Item = u8>,
+    T: PrimInt + Sum + Product,
+{
+    iter.fold(T::zero(), |acc, x| {
+        acc * T::from(10).unwrap() + T::from(x - b'0').unwrap()
+    })
+}
+
+// TODO: make parse_iter into a generic method for any iterator,
+// so you can do I.parse::<T>() -> T
+// pub trait Iterator {
+//     fn parse<T>(self) -> T
+//     where
+//         Self: Sized,
+//         T: PrimInt + Sum + Product,
+//     {
+//         self.fold(T::zero(), |acc, x| {
+//             acc * T::from(10).unwrap() + T::from(x - b'0').unwrap()
+//         })
+//     }
+// }
+
+#[inline]
 pub fn parse_signed<T>(b: &[u8]) -> T
 where
     T: PrimInt + Signed + Sum + Product,
