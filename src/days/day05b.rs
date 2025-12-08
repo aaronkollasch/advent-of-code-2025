@@ -16,7 +16,7 @@ pub fn get_result(input: &[u8]) -> Number {
             RangeInclusive { start, last }
         })
         .collect();
-    fresh_ranges.sort_by_key(|r| (r.start, r.last));
+    fresh_ranges.sort_by_key(|r| r.start);
     let mut num_fresh: Number = 0;
     let mut range_start: Number = fresh_ranges.first().unwrap().start;
     let mut range_end: Number = fresh_ranges.first().unwrap().last;
