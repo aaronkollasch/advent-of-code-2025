@@ -1,52 +1,65 @@
+const NUM_COLUMNS: usize = 141;
+
 pub fn get_result(input: &[u8]) -> usize {
     let mut lines = input
         .split(|&b| b == b'\n')
         .filter(|&l| !l.is_empty())
         .step_by(2);
     let first_line = lines.next().unwrap();
-    let first_pos = first_line.iter().position(|&b| b == b'S').unwrap();
-    let mut state = Vec::<usize>::with_capacity(first_line.len());
+    let num_columns = first_line.len();
+    let first_pos = num_columns / 2;
+    #[cfg(debug_assertions)]
+    {
+        assert_eq!(
+            first_pos,
+            first_line.iter().position(|&b| b == b'S').unwrap()
+        );
+        println!("start pos: {}", first_pos);
+    }
+    let mut state = [false; NUM_COLUMNS];
     let mut new_state = state.clone();
-    state.push(first_pos);
+    state[first_pos] = true;
     let mut split_count = 0;
-    for line in lines {
+    for (i, line) in lines.enumerate() {
         #[cfg(debug_assertions)]
-        println!("{:?}", state);
-        state.iter().for_each(|&pos| {
+        println!(
+            "{}",
+            state
+                .iter()
+                .map(|&b| if b { "|" } else { " " })
+                .collect::<String>()
+        );
+        (first_pos - i..=first_pos + i).for_each(|pos| {
+            if !state[pos] {
+                return;
+            }
             match line[pos] {
                 b'^' => {
                     split_count += 1;
-                    match new_state.last() {
-                        Some(&new_pos) if new_pos == pos - 1 => new_state.push(pos + 1),
-                        _ => {
-                            new_state.push(pos - 1);
-                            new_state.push(pos + 1);
-                        }
-                    };
+                    new_state[pos - 1] = true;
+                    new_state[pos + 1] = true;
                 }
                 _ => {
-                    match new_state.last() {
-                        Some(&new_pos) if new_pos == pos => {},
-                        _ => {
-                            new_state.push(pos);
-                        }
-                    };
+                    new_state[pos] = true;
                 }
             };
+            state[pos] = false;
         });
         (state, new_state) = (new_state, state);
-        new_state.clear();
     }
     #[cfg(debug_assertions)]
-    println!("{:?}", state);
+    println!(
+        "{}",
+        state
+            .iter()
+            .map(|&b| if b { "|" } else { " " })
+            .collect::<String>()
+    );
     split_count
 }
 
 pub fn main() {
-    print!(
-        "{} ",
-        get_result(include_bytes!("../../inputs/day07.txt"))
-    );
+    print!("{} ", get_result(include_bytes!("../../inputs/day07.txt")));
 }
 
 #[cfg(test)]
