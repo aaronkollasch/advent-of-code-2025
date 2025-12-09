@@ -1,6 +1,7 @@
 use aoc2025::days::*;
 use criterion::{Criterion, criterion_group, criterion_main};
 
+#[rustfmt::skip]
 fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("day01a", |b| b.iter(|| day01a::get_result(include_bytes!("../inputs/day01.txt"))));
     c.bench_function("day01b", |b| b.iter(|| day01b::get_result(include_bytes!("../inputs/day01.txt"))));

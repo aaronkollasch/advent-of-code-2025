@@ -21,7 +21,12 @@ pub fn get_result(input: &[u8]) -> Number {
     let mut range_start: Number = fresh_ranges.first().unwrap().start;
     let mut range_end: Number = fresh_ranges.first().unwrap().last;
     #[cfg(debug_assertions)]
-    println!("{:?} -> {} {}", fresh_ranges.first().unwrap(), range_start, range_end);
+    println!(
+        "{:?} -> {} {}",
+        fresh_ranges.first().unwrap(),
+        range_start,
+        range_end
+    );
     fresh_ranges.iter().skip(1).for_each(|&r| {
         #[cfg(debug_assertions)]
         print!("{:?} {} {} -> ", r, range_start, range_end);

@@ -43,7 +43,10 @@ pub fn get_result(input: &[u8]) -> usize {
         .for_each(|(i_row, l)| {
             l.iter().enumerate().for_each(|(i_col, &v)| {
                 if v == b'@' {
-                    grid.set_val(Vec2 { x: i_col + 1, y: i_row + 1 });
+                    grid.set_val(Vec2 {
+                        x: i_col + 1,
+                        y: i_row + 1,
+                    });
                 }
             });
         });
@@ -57,28 +60,52 @@ pub fn get_result(input: &[u8]) -> usize {
             for i_col in 1..MAX_COLS - 1 {
                 if grid.get_val(Vec2 { x: i_col, y: i_row }) {
                     let mut num_neighbors = 0;
-                    if grid.get_val(Vec2 { x: i_col - 1, y: i_row - 1 }) {
+                    if grid.get_val(Vec2 {
+                        x: i_col - 1,
+                        y: i_row - 1,
+                    }) {
                         num_neighbors += 1;
                     }
-                    if grid.get_val(Vec2 { x: i_col - 1, y: i_row }) {
+                    if grid.get_val(Vec2 {
+                        x: i_col - 1,
+                        y: i_row,
+                    }) {
                         num_neighbors += 1;
                     }
-                    if grid.get_val(Vec2 { x: i_col - 1, y: i_row + 1 }) {
+                    if grid.get_val(Vec2 {
+                        x: i_col - 1,
+                        y: i_row + 1,
+                    }) {
                         num_neighbors += 1;
                     }
-                    if grid.get_val(Vec2 { x: i_col + 1, y: i_row - 1 }) {
+                    if grid.get_val(Vec2 {
+                        x: i_col + 1,
+                        y: i_row - 1,
+                    }) {
                         num_neighbors += 1;
                     }
-                    if grid.get_val(Vec2 { x: i_col + 1, y: i_row }) {
+                    if grid.get_val(Vec2 {
+                        x: i_col + 1,
+                        y: i_row,
+                    }) {
                         num_neighbors += 1;
                     }
-                    if grid.get_val(Vec2 { x: i_col + 1, y: i_row + 1 }) {
+                    if grid.get_val(Vec2 {
+                        x: i_col + 1,
+                        y: i_row + 1,
+                    }) {
                         num_neighbors += 1;
                     }
-                    if grid.get_val(Vec2 { x: i_col, y: i_row - 1 }) {
+                    if grid.get_val(Vec2 {
+                        x: i_col,
+                        y: i_row - 1,
+                    }) {
                         num_neighbors += 1;
                     }
-                    if grid.get_val(Vec2 { x: i_col, y: i_row + 1 }) {
+                    if grid.get_val(Vec2 {
+                        x: i_col,
+                        y: i_row + 1,
+                    }) {
                         num_neighbors += 1;
                     }
                     if num_neighbors < 4 {

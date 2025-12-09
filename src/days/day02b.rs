@@ -27,11 +27,15 @@ pub fn get_result(input: &[u8]) -> usize {
             println!("{} -> {} = {}", from, to, to - from + 1);
             from..=to
         })
-        .map(|id| if id_is_invalid(id) {
-            #[cfg(debug_assertions)]
-            println!("{} is invalid", id);
-            id
-        } else { 0 })
+        .map(|id| {
+            if id_is_invalid(id) {
+                #[cfg(debug_assertions)]
+                println!("{} is invalid", id);
+                id
+            } else {
+                0
+            }
+        })
         .sum::<usize>()
 }
 

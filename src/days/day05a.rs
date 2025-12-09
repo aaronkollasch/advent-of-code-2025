@@ -13,15 +13,12 @@ pub fn get_result(input: &[u8]) -> usize {
             RangeInclusive { start, last }
         })
         .collect();
-    let ingredient_ids = &database[split_index+2..];
+    let ingredient_ids = &database[split_index + 2..];
     ingredient_ids
         .split(|b| *b == b'\n')
         .filter(|&l| !l.is_empty())
         .map(|l| parse::<usize>(l))
-        .filter(|id| {
-            fresh_ranges.iter()
-                .any(|&r| r.contains(id))
-        })
+        .filter(|id| fresh_ranges.iter().any(|&r| r.contains(id)))
         .count()
 }
 

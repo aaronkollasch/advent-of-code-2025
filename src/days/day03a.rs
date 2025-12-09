@@ -7,7 +7,8 @@ pub fn get_result(input: &[u8]) -> usize {
         .map(|l| {
             let mut highest_val = 0u8;
             let mut highest_pos = 0usize;
-            let _ = l.iter()
+            let _ = l
+                .iter()
                 .take(l.len() - 1)
                 .map(|c| c - b'0')
                 .enumerate()
@@ -17,7 +18,7 @@ pub fn get_result(input: &[u8]) -> usize {
                         highest_pos = i;
                     }
                     if c == 9 {
-                        return Err(())
+                        return Err(());
                     }
                     Ok(())
                 });

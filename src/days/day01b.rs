@@ -18,7 +18,6 @@ struct Instruction {
 // and resulting state given initial state and rotation
 // and add tests
 
-
 pub fn get_result_unsigned(input: &[u8]) -> UNumber {
     let mut dial_state: UNumber = 50;
     input
@@ -28,21 +27,32 @@ pub fn get_result_unsigned(input: &[u8]) -> UNumber {
             let clicks = parse::<UNumber>(&l[1..]);
             let (clicks_div, clicks_rem) = (clicks / UNUM_POINTS, clicks % UNUM_POINTS);
             let inst = match l[0] {
-                b'L' => Instruction { direction: Direction::Left, clicks_rem, clicks_div},
-                b'R' => Instruction { direction: Direction::Right, clicks_rem, clicks_div},
+                b'L' => Instruction {
+                    direction: Direction::Left,
+                    clicks_rem,
+                    clicks_div,
+                },
+                b'R' => Instruction {
+                    direction: Direction::Right,
+                    clicks_rem,
+                    clicks_div,
+                },
                 _ => unreachable!(),
             };
-            let new_dial_state = (dial_state + match inst.direction {
-                Direction::Left => UNUM_POINTS - inst.clicks_rem,
-                Direction::Right => inst.clicks_rem,
-            }).rem_euclid(UNUM_POINTS);
-            let num_crossings = inst.clicks_div + match inst.direction {
-                Direction::Left if dial_state == 0 => 0,
-                Direction::Left if inst.clicks_rem >= dial_state => 1,
-                Direction::Left => 0,
-                Direction::Right if inst.clicks_rem + dial_state >= UNUM_POINTS => 1,
-                Direction::Right => 0,
-            };
+            let new_dial_state = (dial_state
+                + match inst.direction {
+                    Direction::Left => UNUM_POINTS - inst.clicks_rem,
+                    Direction::Right => inst.clicks_rem,
+                })
+            .rem_euclid(UNUM_POINTS);
+            let num_crossings = inst.clicks_div
+                + match inst.direction {
+                    Direction::Left if dial_state == 0 => 0,
+                    Direction::Left if inst.clicks_rem >= dial_state => 1,
+                    Direction::Left => 0,
+                    Direction::Right if inst.clicks_rem + dial_state >= UNUM_POINTS => 1,
+                    Direction::Right => 0,
+                };
             #[cfg(debug_assertions)]
             println!(
                 "{} + {}=({} {}) -> {} {}",
@@ -85,7 +95,10 @@ pub fn get_result(input: &[u8]) -> Number {
                     Rotation::Right(clicks) => clicks,
                 };
             let num_crossings = match rot {
-                Rotation::Left(_) => (dial_state - 1).div_euclid(NUM_POINTS) - (new_dial_state - 1).div_euclid(NUM_POINTS),
+                Rotation::Left(_) => {
+                    (dial_state - 1).div_euclid(NUM_POINTS)
+                        - (new_dial_state - 1).div_euclid(NUM_POINTS)
+                }
                 Rotation::Right(_) => new_dial_state.div_euclid(NUM_POINTS),
             };
             dial_state = new_dial_state.rem_euclid(NUM_POINTS);

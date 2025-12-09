@@ -1,5 +1,5 @@
-use itertools::Itertools;
 use crate::common::ParseExt;
+use itertools::Itertools;
 
 type Number = usize;
 
@@ -9,7 +9,8 @@ pub fn get_result(input: &[u8]) -> usize {
         .filter(|&l| !l.is_empty())
         .collect();
     let operations = lines.pop().unwrap();
-    operations.iter()
+    operations
+        .iter()
         .enumerate()
         .map(|(i, &op)| (i, op))
         .filter(|&(_, op)| op != b' ')
@@ -19,11 +20,19 @@ pub fn get_result(input: &[u8]) -> usize {
             let first_column = i;
             let end_column = next_i - 1;
             #[cfg(debug_assertions)]
-            println!("{} @ {}..{}", std::str::from_utf8(&[op]).unwrap(), i, next_i);
-            let values = (first_column..end_column)
-                .map(|c| {
-                    lines.iter().map(|&l| l[c]).filter(|&b| b != b' ').parse::<Number>()
-                });
+            println!(
+                "{} @ {}..{}",
+                std::str::from_utf8(&[op]).unwrap(),
+                i,
+                next_i
+            );
+            let values = (first_column..end_column).map(|c| {
+                lines
+                    .iter()
+                    .map(|&l| l[c])
+                    .filter(|&b| b != b' ')
+                    .parse::<Number>()
+            });
             let result = match op {
                 b'*' => values.product1::<Number>().unwrap(),
                 b'+' => values.sum1().unwrap(),

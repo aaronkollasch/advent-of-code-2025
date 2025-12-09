@@ -10,7 +10,8 @@ pub fn get_result(input: &[u8]) -> Number {
             let mut highest_pos = 0;
             for digits_place in (0..12).rev() {
                 let mut new_highest_pos = highest_pos;
-                let _ = l[highest_pos..l.len() - digits_place].iter()
+                let _ = l[highest_pos..l.len() - digits_place]
+                    .iter()
                     // .take_while(|_| highest_val < 9)
                     .map(|c| c - b'0')
                     .enumerate()
@@ -20,13 +21,16 @@ pub fn get_result(input: &[u8]) -> Number {
                             new_highest_pos = i;
                         }
                         if c == 9 {
-                            return Err(())
+                            return Err(());
                         }
                         Ok(())
                     });
                 accum += highest_val as Number * (10 as Number).pow(digits_place as u32);
                 #[cfg(debug_assertions)]
-                println!("{} {} {} {} {}", digits_place, highest_pos, new_highest_pos, highest_val, accum);
+                println!(
+                    "{} {} {} {} {}",
+                    digits_place, highest_pos, new_highest_pos, highest_val, accum
+                );
                 highest_val = 0;
                 highest_pos += new_highest_pos + 1;
             }
