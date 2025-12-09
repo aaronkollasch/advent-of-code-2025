@@ -26,101 +26,6 @@ where
 }
 
 #[inline]
-pub fn parse_iter<T, I>(iter: I) -> T
-where
-    I: Iterator<Item = u8>,
-    T: PrimInt + Sum + Product,
-{
-    iter.fold(T::zero(), |acc, x| {
-        acc * T::from(10).unwrap() + T::from(x - b'0').unwrap()
-    })
-}
-
-// TODO: make parse_iter into a generic method for any iterator,
-// so you can do I.parse::<T>() -> T
-// pub trait Parser {
-//     fn parse<T>(self) -> T;
-// }
-// pub trait Parser<A = Self>: Sized {
-//     /// Takes an iterator and generates `Self` from the elements by parsing
-//     /// the items.
-//     fn parse<I: Iterator<Item = u8>>(iter: I) -> Self;
-// }
-//
-// macro_rules! integer_sum_product {
-//     (@impls $zero:expr, $one:expr, #[$attr:meta], $($a:ty)*) => ($(
-//         #[$attr]
-//         impl Parser for $a {
-//             fn parse<I: Iterator<Item=u8>>(iter: I) -> Self {
-//                 iter.fold($zero, |acc, x| {
-//                     acc * $a::from(10).unwrap() + $a::from(x - b'0').unwrap()
-//                 })
-//             }
-//         }
-//     )*);
-//     ($($a:ty)*) => (
-//         integer_sum_product!(@impls 0, 1,
-//                 $($a)*);
-//         integer_sum_product!(@impls Wrapping(0), Wrapping(1),
-//                 $(Wrapping<$a>)*);
-//     );
-// }
-//
-// integer_sum_product! { i8 i16 i32 i64 i128 isize u8 u16 u32 u64 u128 usize }
-//
-// // impl Parser for T
-// // where
-// //     T: PrimInt + Sum + Product,
-// // {
-// //     fn parse<I: Iterator<Item=u8>>(iter: I) -> Self {
-// //         iter.fold(T::zero(), |acc, x| {
-// //             acc * T::from(10).unwrap() + T::from(x - b'0').unwrap()
-// //         })
-// //     }
-// // }
-//
-//
-// impl<I> Parser for I
-// where
-//     I: Iterator<Item = u8>,
-// {
-//     fn parse<T>(self) -> T
-//     where
-//         Self: Sized,
-//         T: Parser<Self::Item>,
-//     {
-//         Parser::parse(self)
-//     }
-//     // #[inline]
-//     // fn parse<T>(self) -> T
-//     // where
-//     //     Self: Sized,
-//     //     T: PrimInt + Sum + Product,
-//     // {
-//     //     // This is too aggressive to turn on for everything all the time, but PR#137908
-//     //     // accidentally noticed that some rustc iterators had malformed `size_hint`s,
-//     //     // so this will help catch such things in debug-assertions-std runners,
-//     //     // even if users won't actually ever see it.
-//     //     if cfg!(debug_assertions) {
-//     //         let hint = self.size_hint();
-//     //         assert!(hint.1.is_none_or(|high| high >= hint.0), "Malformed size_hint {hint:?}");
-//     //     }
-//     //
-//     //     FromIterator::from_iter(self)
-//     // }
-//
-//     // fn parse<T>(self) -> T
-//     // where
-//     //     Self: Sized,
-//     //     T: PrimInt + Sum + Product,
-//     // {
-//     //     self.fold(T::zero(), |acc, x| {
-//     //         acc * T::from(10).unwrap() + T::from(x - b'0').unwrap()
-//     //     })
-//     // }
-// }
-
-#[inline]
 pub fn parse_signed<T>(b: &[u8]) -> T
 where
     T: PrimInt + Signed + Sum + Product,
@@ -134,6 +39,61 @@ where
         _ => b.iter().fold(T::zero(), |acc, x| {
             acc * T::from(10).unwrap() + T::from(x - b'0').unwrap()
         }),
+    }
+}
+
+#[inline]
+pub fn parse_iter<T, I>(iter: I) -> T
+where
+    I: Iterator<Item = u8>,
+    T: PrimInt + Sum + Product,
+{
+    iter.fold(T::zero(), |acc, x| {
+        acc * T::from(10).unwrap() + T::from(x - b'0').unwrap()
+    })
+}
+
+pub trait ParseExt: Iterator {
+    fn parse<P>(self) -> P
+    where
+        P: Parsed,
+        Self: Sized + Iterator<Item = u8>,
+    {
+        P::parse(self)
+    }
+}
+
+impl<I: Iterator> ParseExt for I {}
+
+pub trait Parsed<A = Self> {
+    fn parse<I>(iter: I) -> Self
+    where
+        I: Iterator<Item = u8>;
+}
+
+macro_rules! parser {
+    (@impls $zero:expr, $one:expr, $($a:ty)*) => ($(
+        impl Parsed for $a {
+            fn parse<I: Iterator<Item=u8>>(iter: I) -> Self {
+                iter.fold($zero, |acc, x: u8| {
+                    acc * <$a>::from(10u8) + <$a>::from(x - b'0')
+                })
+            }
+        }
+    )*);
+    ($($a:ty)*) => (
+        parser!(@impls 0, 1,
+                $($a)*);
+    );
+}
+
+parser! { i16 i32 i64 i128 isize u8 u16 u32 u64 u128 usize }
+
+impl Parsed for i8 {
+    fn parse<I: Iterator<Item = u8>>(iter: I) -> Self {
+        iter.fold(0i8, |acc, x: u8| {
+            acc * 10i8 + <i8>::try_from(x - b'0').unwrap()
+        })
     }
 }
 

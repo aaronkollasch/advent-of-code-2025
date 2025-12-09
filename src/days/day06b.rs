@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use crate::common::parse_iter;
+use crate::common::ParseExt;
 
 type Number = usize;
 
@@ -22,7 +22,7 @@ pub fn get_result(input: &[u8]) -> usize {
             println!("{} @ {}..{}", std::str::from_utf8(&[op]).unwrap(), i, next_i);
             let values = (first_column..end_column)
                 .map(|c| {
-                    parse_iter::<Number, _>(lines.iter().map(|&l| l[c]).filter(|&b| b != b' '))
+                    lines.iter().map(|&l| l[c]).filter(|&b| b != b' ').parse::<Number>()
                 });
             let result = match op {
                 b'*' => values.product1::<Number>().unwrap(),
