@@ -1,14 +1,17 @@
 extern crate num;
 
 use num::{Num, PrimInt, Signed, Unsigned};
-use std::fmt;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, Sub, SubAssign};
+use primitive_types::U256;
 use std::{
-    fmt::{Binary, Display},
+    fmt::{self, Binary, Display},
     iter::{Product, Sum},
     mem::size_of,
-    ops::{BitAnd, BitOrAssign, Shl, Shr},
+    ops::{
+        Add, AddAssign, BitAnd, BitAndAssign, BitOrAssign, Div, DivAssign, Mul, MulAssign, Rem,
+        Shl, Shr, Sub, SubAssign,
+    },
 };
+use u256_literal::u256;
 
 #[inline]
 pub fn parse_u8(b: &[u8]) -> u8 {
@@ -107,6 +110,7 @@ impl<T> BitVec<T>
 where
     T: PrimInt
         + Unsigned
+        + BitAndAssign
         + BitOrAssign
         + Shr<Output = T>
         + Shl<Output = T>
@@ -129,8 +133,19 @@ where
     }
 
     #[inline]
+    pub fn unset_bit(&mut self, pos: T) {
+        self.vec &= !(T::one() << pos);
+    }
+
+    #[inline]
     pub fn get_bit(&self, pos: T) -> T {
         (self.vec >> pos) & T::one()
+    }
+
+    #[inline]
+    pub fn iter_set(&self) -> impl Iterator<Item = T> + '_ {
+        num::iter::range(T::zero(), T::from(self.size).unwrap())
+            .filter(|i| self.get_bit(*i) == T::one())
     }
 
     #[inline]
@@ -149,6 +164,65 @@ where
             formatter,
             "BitVec({})",
             format!("{:064b}", self.vec.reverse_bits())
+                .split_at(self.size)
+                .0
+        )
+    }
+}
+
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub struct BitVec256 {
+    vec: U256,
+    size: usize,
+}
+
+impl BitVec256 {
+    pub fn new(size: usize) -> Self {
+        if size > size_of::<U256>() * 8 {
+            panic!("too many bits for BitVec: {}", size);
+        }
+        Self {
+            vec: u256!(0),
+            size,
+        }
+    }
+
+    #[inline]
+    pub fn set_bit(&mut self, pos: U256) {
+        self.vec |= u256!(1) << pos;
+    }
+
+    #[inline]
+    pub fn unset_bit(&mut self, pos: usize) {
+        self.vec &= !(u256!(1) << pos);
+    }
+
+    #[inline]
+    pub fn get_bit(&self, pos: usize) -> U256 {
+        (self.vec >> pos) & u256!(1)
+    }
+
+    #[inline]
+    pub fn iter_set(&self) -> impl Iterator<Item = usize> + '_ {
+        num::iter::range(0, self.size).filter(|i| self.get_bit(*i) == u256!(1))
+    }
+
+    #[inline]
+    pub fn iter_unset(&self) -> impl Iterator<Item = usize> + '_ {
+        num::iter::range(0, self.size).filter(|i| self.get_bit(*i) == u256!(0))
+    }
+}
+
+impl fmt::Display for BitVec256 {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            formatter,
+            "BitVec256({})",
+            self.vec
+                .to_little_endian()
+                .iter()
+                .map(|b| format!("{:08b}", b.reverse_bits()))
+                .collect::<String>()
                 .split_at(self.size)
                 .0
         )
