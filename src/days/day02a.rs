@@ -1,28 +1,59 @@
 use crate::common::parse;
 
-// TODO: see https://www.reddit.com/r/adventofcode/comments/1pcgyr8/2025_day_2_part_2_python_very_efficient_olog_max/
-// and https://github.com/jimm89/AdventOfCode2025/blob/main/Day%202/Day%202.ipynb
+fn sum_first_n(n: usize) -> usize {
+    n * (n + 1) / 2
+}
 
-pub fn id_is_invalid(id: usize) -> bool {
-    let digits = id.to_string();
-    let l = digits.len();
-    if !l.is_multiple_of(2) {
-        return false;
-    }
-    digits[..l / 2] == digits[l / 2..]
+fn sum_range(from: usize, to: usize) -> usize {
+    sum_first_n(to) - sum_first_n(from - 1)
+}
+
+fn sum_invalid(from: usize, to: usize) -> usize {
+    let min_len = from.ilog10() + 1;
+    let max_len = to.ilog10() + 1;
+    #[cfg(debug_assertions)]
+    println!("{}-{} => lengths {}-{}", from, to, min_len, max_len);
+
+    (min_len..=max_len)
+        .filter(|&total_len| total_len.is_multiple_of(2))
+        .map(|total_len| {
+            let half_len = total_len / 2;
+            let low_half = 10usize.pow(half_len - 1);
+            let high_half = 10usize.pow(half_len) - 1;
+            let mut min_repeat;
+            if total_len > min_len {
+                min_repeat = low_half;
+            } else {
+                min_repeat = from.div_floor(low_half * 10);
+                if min_repeat * (10 * low_half + 1) < from {
+                    min_repeat += 1;
+                }
+            }
+            let mut max_repeat;
+            if total_len < max_len {
+                max_repeat = high_half;
+            } else {
+                max_repeat = to.div_floor(low_half * 10);
+                if max_repeat * (10 * low_half + 1) > to {
+                    max_repeat -= 1;
+                }
+            }
+            #[cfg(debug_assertions)]
+            println!(
+                "{}-{} => {}{}-{}{} @ len {}",
+                from, to, min_repeat, min_repeat, max_repeat, max_repeat, total_len
+            );
+            sum_range(min_repeat, max_repeat) * (10 * low_half + 1)
+        })
+        .sum::<_>()
 }
 
 pub fn get_result(input: &[u8]) -> usize {
     input
         .split(|b| *b == b',')
-        .flat_map(|r| {
-            let (from, to) = r.split_once(|&x| x == b'-').unwrap();
-            let (from, to) = (parse::<usize>(from), parse::<usize>(to));
-            #[cfg(debug_assertions)]
-            println!("{} -> {} = {}", from, to, to - from + 1);
-            from..=to
-        })
-        .map(|id| if id_is_invalid(id) { id } else { 0 })
+        .map(|r| r.split_once(|&b| b == b'-').unwrap())
+        .map(|(from, to)| (parse::<usize>(from), parse::<usize>(to)))
+        .map(|(from, to)| sum_invalid(from, to))
         .sum::<usize>()
 }
 
