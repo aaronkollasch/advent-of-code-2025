@@ -1,17 +1,14 @@
 use crate::common::Vec2;
-use primitive_types::U256;
-use u256_literal::u256;
 
 type Number = usize;
 type Pos = Vec2<Number>;
 
-#[allow(dead_code)]
 const MAX_COLS: usize = 139;
 const MAX_ROWS: usize = 139;
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 struct Grid {
-    vals: [U256; MAX_ROWS],
+    vals: [[bool; MAX_COLS]; MAX_ROWS],
     width: usize,
     height: usize,
 }
@@ -19,18 +16,18 @@ struct Grid {
 impl Grid {
     pub fn new(width: usize, height: usize) -> Self {
         Self {
-            vals: [u256!(0); MAX_ROWS],
+            vals: [[false; MAX_COLS]; MAX_ROWS],
             width,
             height,
         }
     }
 
     fn get_val(&self, pos: Pos) -> bool {
-        (self.vals[pos.y] >> pos.x) & u256!(1) > u256!(0)
+        self.vals[pos.y][pos.x]
     }
 
     fn set_val(&mut self, pos: Pos) {
-        self.vals[pos.y] |= u256!(1) << pos.x;
+        self.vals[pos.y][pos.x] = true;
     }
 }
 
@@ -56,6 +53,7 @@ pub fn get_result(input: &[u8]) -> usize {
     let mut num_removed = 0;
     while num_accessible > 0 {
         num_accessible = 0;
+        // TODO: keep cache of previous accessible rolls in a deque
         for i_row in 1..MAX_ROWS - 1 {
             for i_col in 1..MAX_COLS - 1 {
                 if grid.get_val(Vec2 { x: i_col, y: i_row }) {
