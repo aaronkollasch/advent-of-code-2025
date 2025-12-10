@@ -29,6 +29,8 @@ pub fn get_result(input: &[u8]) -> usize {
                 .map(|&b| if b { "|" } else { " " })
                 .collect::<String>()
         );
+        // #[cfg(debug_assertions)]
+        // println!("{}", str::from_utf8(line).unwrap().replace(".", " "));
         (first_pos - i..=first_pos + i).for_each(|pos| {
             if !state[pos] {
                 return;

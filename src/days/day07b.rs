@@ -31,13 +31,22 @@ pub fn get_result(input: &[u8]) -> usize {
                     _ if c > 1000000000 => '▊',
                     _ if c > 10000000 => '▋',
                     _ if c > 100000 => '▌',
-                    _ if c > 1000 => '▍',
-                    _ if c > 10 => '▎',
-                    _ if c > 0 => '▏',
+                    _ if c > 10000 => '┃',
+                    _ if c > 100 => '┇',
+                    _ if c > 10 => '│',
+                    _ if c > 0 => '┆',
                     _ => ' ',
                 })
                 .collect::<String>()
         );
+        // #[cfg(debug_assertions)]
+        // println!(
+        //     "{}",
+        //     str::from_utf8(line)
+        //         .unwrap()
+        //         .replace(".", " ")
+        //         .replace("^", "⏶")
+        // );
         (first_pos - i..=first_pos + i).for_each(|pos| {
             if state[pos] == 0 {
                 return;
@@ -66,9 +75,10 @@ pub fn get_result(input: &[u8]) -> usize {
                 _ if c > 1000000000 => '▊',
                 _ if c > 10000000 => '▋',
                 _ if c > 100000 => '▌',
-                _ if c > 1000 => '▍',
-                _ if c > 10 => '▎',
-                _ if c > 0 => '▏',
+                _ if c > 10000 => '┃',
+                _ if c > 100 => '┇',
+                _ if c > 10 => '│',
+                _ if c > 0 => '┆',
                 _ => ' ',
             })
             .collect::<String>()
