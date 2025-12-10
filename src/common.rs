@@ -143,6 +143,17 @@ where
     }
 
     #[inline]
+    pub fn clear(&mut self) {
+        self.vec = T::zero();
+    }
+
+    #[inline]
+    pub fn iter(&self) -> impl Iterator<Item = bool> + '_ {
+        num::iter::range(T::zero(), T::from(self.size).unwrap())
+            .map(|i| self.get_bit(i) == T::one())
+    }
+
+    #[inline]
     pub fn iter_set(&self) -> impl Iterator<Item = T> + '_ {
         num::iter::range(T::zero(), T::from(self.size).unwrap())
             .filter(|i| self.get_bit(*i) == T::one())
@@ -188,7 +199,7 @@ impl BitVec256 {
     }
 
     #[inline]
-    pub fn set_bit(&mut self, pos: U256) {
+    pub fn set_bit(&mut self, pos: usize) {
         self.vec |= u256!(1) << pos;
     }
 
@@ -198,18 +209,28 @@ impl BitVec256 {
     }
 
     #[inline]
-    pub fn get_bit(&self, pos: usize) -> U256 {
-        (self.vec >> pos) & u256!(1)
+    pub fn get_bit(&self, pos: usize) -> u32 {
+        (self.vec >> pos).low_u32() & 1
+    }
+
+    #[inline]
+    pub fn clear(&mut self) {
+        self.vec = u256!(0);
+    }
+
+    #[inline]
+    pub fn iter(&self) -> impl Iterator<Item = bool> + '_ {
+        num::iter::range(0, self.size).map(|i| self.get_bit(i) == 1)
     }
 
     #[inline]
     pub fn iter_set(&self) -> impl Iterator<Item = usize> + '_ {
-        num::iter::range(0, self.size).filter(|i| self.get_bit(*i) == u256!(1))
+        num::iter::range(0, self.size).filter(|i| self.get_bit(*i) == 1)
     }
 
     #[inline]
     pub fn iter_unset(&self) -> impl Iterator<Item = usize> + '_ {
-        num::iter::range(0, self.size).filter(|i| self.get_bit(*i) == u256!(0))
+        num::iter::range(0, self.size).filter(|i| self.get_bit(*i) == 0)
     }
 }
 
