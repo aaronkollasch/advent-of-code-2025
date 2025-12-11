@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use crate::common::Vec2;
 
 type Number = usize;
@@ -22,12 +24,21 @@ impl Grid {
         }
     }
 
+    #[allow(dead_code)]
+    fn clear(&mut self) {
+        self.vals = [[false; MAX_COLS]; MAX_ROWS];
+    }
+
     fn get_val(&self, pos: Pos) -> bool {
         self.vals[pos.y][pos.x]
     }
 
     fn set_val(&mut self, pos: Pos) {
         self.vals[pos.y][pos.x] = true;
+    }
+
+    fn unset_val(&mut self, pos: Pos) {
+        self.vals[pos.y][pos.x] = false;
     }
 }
 
@@ -48,76 +59,117 @@ pub fn get_result(input: &[u8]) -> usize {
             });
         });
 
-    let mut new_grid = Grid::new(MAX_COLS, MAX_ROWS);
-    let mut num_accessible = 1;
+    let mut q: VecDeque<Pos>;
+    if cfg!(debug_assertions) {
+        q = VecDeque::with_capacity(4);
+    } else {
+        q = VecDeque::with_capacity(8000);
+    }
     let mut num_removed = 0;
-    while num_accessible > 0 {
-        num_accessible = 0;
-        // TODO: keep cache of previous accessible rolls in a deque
-        for i_row in 1..MAX_ROWS - 1 {
-            for i_col in 1..MAX_COLS - 1 {
-                if grid.get_val(Vec2 { x: i_col, y: i_row }) {
-                    let mut num_neighbors = 0;
-                    if grid.get_val(Vec2 {
-                        x: i_col - 1,
-                        y: i_row - 1,
-                    }) {
+    for i_row in 1..MAX_ROWS - 1 {
+        for i_col in 1..MAX_COLS - 1 {
+            let pos = Vec2 { x: i_col, y: i_row };
+            if grid.get_val(pos) {
+                let neighbors = [
+                    Vec2 {
+                        x: pos.x - 1,
+                        y: pos.y - 1,
+                    },
+                    Vec2 {
+                        x: pos.x - 1,
+                        y: pos.y,
+                    },
+                    Vec2 {
+                        x: pos.x - 1,
+                        y: pos.y + 1,
+                    },
+                    Vec2 {
+                        x: pos.x + 1,
+                        y: pos.y - 1,
+                    },
+                    Vec2 {
+                        x: pos.x + 1,
+                        y: pos.y,
+                    },
+                    Vec2 {
+                        x: pos.x + 1,
+                        y: pos.y + 1,
+                    },
+                    Vec2 {
+                        x: pos.x,
+                        y: pos.y - 1,
+                    },
+                    Vec2 {
+                        x: pos.x,
+                        y: pos.y + 1,
+                    },
+                ];
+                let mut num_neighbors = 0;
+                for neighbor in neighbors {
+                    if grid.get_val(neighbor) {
                         num_neighbors += 1;
                     }
-                    if grid.get_val(Vec2 {
-                        x: i_col - 1,
-                        y: i_row,
-                    }) {
-                        num_neighbors += 1;
-                    }
-                    if grid.get_val(Vec2 {
-                        x: i_col - 1,
-                        y: i_row + 1,
-                    }) {
-                        num_neighbors += 1;
-                    }
-                    if grid.get_val(Vec2 {
-                        x: i_col + 1,
-                        y: i_row - 1,
-                    }) {
-                        num_neighbors += 1;
-                    }
-                    if grid.get_val(Vec2 {
-                        x: i_col + 1,
-                        y: i_row,
-                    }) {
-                        num_neighbors += 1;
-                    }
-                    if grid.get_val(Vec2 {
-                        x: i_col + 1,
-                        y: i_row + 1,
-                    }) {
-                        num_neighbors += 1;
-                    }
-                    if grid.get_val(Vec2 {
-                        x: i_col,
-                        y: i_row - 1,
-                    }) {
-                        num_neighbors += 1;
-                    }
-                    if grid.get_val(Vec2 {
-                        x: i_col,
-                        y: i_row + 1,
-                    }) {
-                        num_neighbors += 1;
-                    }
-                    if num_neighbors < 4 {
-                        num_accessible += 1;
-                    } else {
-                        new_grid.set_val(Vec2 { x: i_col, y: i_row });
-                    }
+                }
+                if num_neighbors < 4 {
+                    q.extend(neighbors.into_iter().filter(|&p| grid.get_val(p)));
+                    num_removed += 1;
+                    grid.unset_val(pos);
                 }
             }
         }
-        grid = new_grid;
-        new_grid = Grid::new(MAX_COLS, MAX_ROWS);
-        num_removed += num_accessible;
     }
+    while let Some(pos) = q.pop_front() {
+        if !grid.get_val(pos) {
+            continue;
+        }
+        let mut num_neighbors = 0u8;
+        let neighbors = [
+            Vec2 {
+                x: pos.x - 1,
+                y: pos.y - 1,
+            },
+            Vec2 {
+                x: pos.x - 1,
+                y: pos.y,
+            },
+            Vec2 {
+                x: pos.x - 1,
+                y: pos.y + 1,
+            },
+            Vec2 {
+                x: pos.x + 1,
+                y: pos.y - 1,
+            },
+            Vec2 {
+                x: pos.x + 1,
+                y: pos.y,
+            },
+            Vec2 {
+                x: pos.x + 1,
+                y: pos.y + 1,
+            },
+            Vec2 {
+                x: pos.x,
+                y: pos.y - 1,
+            },
+            Vec2 {
+                x: pos.x,
+                y: pos.y + 1,
+            },
+        ];
+        for neighbor in neighbors {
+            if grid.get_val(neighbor) {
+                num_neighbors += 1;
+            }
+        }
+        if num_neighbors < 4 {
+            num_removed += 1;
+            grid.unset_val(pos);
+            q.extend(neighbors.into_iter().filter(|&p| grid.get_val(p)));
+        }
+    }
+    #[cfg(debug_assertions)]
+    println!("deque size: {}", q.capacity());
     num_removed
 }
 
