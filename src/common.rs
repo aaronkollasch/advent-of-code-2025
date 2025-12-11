@@ -256,6 +256,46 @@ pub struct Vec2<T: Num> {
     pub y: T,
 }
 
+impl<T: Num + Copy> Vec2<T> {
+    #[inline]
+    pub fn neighbors(&self) -> [Self; 8] {
+        [
+            Self {
+                x: self.x - T::one(),
+                y: self.y - T::one(),
+            },
+            Self {
+                x: self.x - T::one(),
+                y: self.y,
+            },
+            Self {
+                x: self.x - T::one(),
+                y: self.y + T::one(),
+            },
+            Self {
+                x: self.x + T::one(),
+                y: self.y - T::one(),
+            },
+            Self {
+                x: self.x + T::one(),
+                y: self.y,
+            },
+            Self {
+                x: self.x + T::one(),
+                y: self.y + T::one(),
+            },
+            Self {
+                x: self.x,
+                y: self.y - T::one(),
+            },
+            Self {
+                x: self.x,
+                y: self.y + T::one(),
+            },
+        ]
+    }
+}
+
 impl<T: Num> Add<(T, T)> for Vec2<T> {
     type Output = Vec2<T>;
 
