@@ -21,3 +21,6 @@ bench-all:
 
 bench-builtin:
     cargo +nightly run --release --bin bench
+
+flamegraph DAY:
+    CARGO_PROFILE_RELEASE_DEBUG=true cargo +nightly flamegraph --bench all-days -- --bench {{DAY}}
