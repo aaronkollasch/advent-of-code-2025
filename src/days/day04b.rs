@@ -1,5 +1,3 @@
-use std::collections::VecDeque;
-
 use crate::common::Vec2;
 
 type Number = usize;
@@ -59,11 +57,11 @@ pub fn get_result(input: &[u8]) -> usize {
             });
         });
 
-    let mut q: VecDeque<Pos>;
+    let mut q: Vec<Pos>;
     if cfg!(debug_assertions) {
-        q = VecDeque::with_capacity(4);
+        q = Vec::with_capacity(4);
     } else {
-        q = VecDeque::with_capacity(8000);
+        q = Vec::with_capacity(8192);
     }
     let mut num_removed = 0;
     for i_row in 1..MAX_ROWS - 1 {
@@ -118,7 +116,7 @@ pub fn get_result(input: &[u8]) -> usize {
             }
         }
     }
-    while let Some(pos) = q.pop_front() {
+    while let Some(pos) = q.pop() {
         if !grid.get_val(pos) {
             continue;
         }
