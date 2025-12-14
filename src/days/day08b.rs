@@ -40,7 +40,7 @@ pub fn get_result(input: &[u8]) -> isize {
     #[cfg(debug_assertions)]
     println!("num boxes: {}", boxes.len());
 
-    let mut closest = Vec::with_capacity(boxes.len() * boxes.len() / 2);
+    let mut closest = Vec::with_capacity(boxes.len() * (boxes.len() - 1) / 2);
     for i in 0..boxes.len() {
         for j in i + 1..boxes.len() {
             let (pos1, pos2) = (boxes[i], boxes[j]);
@@ -52,12 +52,26 @@ pub fn get_result(input: &[u8]) -> isize {
             });
         }
     }
+    #[cfg(debug_assertions)]
+    println!(
+        "{} closest (capacity {})",
+        closest.len(),
+        closest.capacity()
+    );
+    if closest.len() > 7000 {
+        closest.select_nth_unstable(7000);
+        closest.truncate(7000);
+    }
     closest.sort_unstable();
 
     let mut circuit_to_cluster: HashMap<usize, usize> = HashMap::with_capacity(1000);
     let mut cluster_to_circuits: HashMap<usize, Vec<usize>> = HashMap::with_capacity(1000);
     let mut next_cluster: usize = 0;
     let mut last_pair: (usize, usize) = (42, 42);
+    #[cfg(debug_assertions)]
+    let mut i_pair = 0usize;
+    #[cfg(debug_assertions)]
+    let _closest_len = closest.len();
     let _ = closest
         .into_iter()
         .take_while(|pair| {
@@ -103,13 +117,18 @@ pub fn get_result(input: &[u8]) -> isize {
                 }
             }
             #[cfg(debug_assertions)]
-            println!(
-                "{}/{} connected in {} cluster, continue? {}",
-                circuit_to_cluster.len(),
-                boxes.len(),
-                cluster_to_circuits.len(),
-                circuit_to_cluster.len() < boxes.len() || cluster_to_circuits.len() > 1
-            );
+            {
+                println!(
+                    "step {}/{}: {}/{} connected in {} cluster, continue? {}",
+                    i_pair,
+                    _closest_len,
+                    circuit_to_cluster.len(),
+                    boxes.len(),
+                    cluster_to_circuits.len(),
+                    circuit_to_cluster.len() < boxes.len() || cluster_to_circuits.len() > 1
+                );
+                i_pair += 1;
+            }
             circuit_to_cluster.len() < boxes.len() || cluster_to_circuits.len() > 1
         })
         .last();
