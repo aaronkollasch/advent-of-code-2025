@@ -73,7 +73,10 @@ pub fn get_result(input: &[u8], num_connections: usize) -> usize {
                 println!("new cluster {} {:?} {:?}", next_cluster, box1, box2);
                 circuit_to_cluster[box1] = next_cluster;
                 circuit_to_cluster[box2] = next_cluster;
-                cluster_to_circuits.push(vec![box1, box2]);
+                let mut new_circuits = Vec::with_capacity(16);
+                new_circuits.push(box1);
+                new_circuits.push(box2);
+                cluster_to_circuits.push(new_circuits);
             }
             (cluster, usize::MAX) => {
                 // add box2 to box1's cluster
