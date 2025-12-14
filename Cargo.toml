@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 itertools = "0.14.0"
 num = "0.4.3"
+ordered-float = "5.1.0"
 primitive-types = "0.14.0"
 rayon = "1.11.0"
 took = "0.1.2"
@@ -87,3 +88,11 @@ path = "src/bin/days/day07a.rs"
 [[bin]]
 name = "day07b"
 path = "src/bin/days/day07b.rs"
+
+[[bin]]
+name = "day08a"
+path = "src/bin/days/day08a.rs"
+
+[[bin]]
+name = "day08b"
+path = "src/bin/days/day08b.rs"
