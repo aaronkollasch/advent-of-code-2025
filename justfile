@@ -14,9 +14,11 @@ watch:
     bacon test
 
 bench DAY:
+    cargo +nightly test --release --lib {{DAY}}
     cargo +nightly bench --bench all-days -- {{DAY}}
 
 bench-all:
+    cargo +nightly test --release --lib
     cargo +nightly bench --bench all-days
 
 bench-builtin:
