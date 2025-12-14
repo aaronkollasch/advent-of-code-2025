@@ -33,33 +33,32 @@ pub fn get_result(input: &[u8]) -> isize {
     #[cfg(debug_assertions)]
     println!("num boxes: {}", boxes.len());
 
-    // TODO: change from (pos1, pos2) to (i, j)?
-    let mut closest: BTreeMap<Float, Vec<(Pos, Pos)>> = BTreeMap::new();
+    let mut closest: BTreeMap<Float, Vec<(usize, usize)>> = BTreeMap::new();
     for i in 0..boxes.len() {
         for j in i + 1..boxes.len() {
             let (pos1, pos2) = (boxes[i], boxes[j]);
             let dist = distance(pos1, pos2);
             if let Some(pairs) = closest.get_mut(&dist) {
-                pairs.push((pos1, pos2));
+                pairs.push((i, j));
             } else {
-                closest.insert(dist, vec![(pos1, pos2)]);
+                closest.insert(dist, vec![(i, j)]);
             }
         }
     }
-    let mut circuit_to_cluster: HashMap<Pos, usize> = HashMap::with_capacity(1000);
-    let mut cluster_to_circuits: HashMap<usize, Vec<Pos>> = HashMap::with_capacity(1000);
+    let mut circuit_to_cluster: HashMap<usize, usize> = HashMap::with_capacity(1000);
+    let mut cluster_to_circuits: HashMap<usize, Vec<usize>> = HashMap::with_capacity(1000);
     let mut next_cluster: usize = 0;
-    let mut last_pair: (Pos, Pos) = ((42, 42, 42), (42, 42, 42));
+    let mut last_pair: (usize, usize) = (42, 42);
     let _ = closest
         .values()
         .take_while(|pairs| {
-            pairs.into_iter().for_each(|&(pos1, pos2)| {
-                last_pair = (pos1, pos2);
-                match (circuit_to_cluster.get(&pos1), circuit_to_cluster.get(&pos2)) {
+            pairs.into_iter().for_each(|&(box1, box2)| {
+                last_pair = (box1, box2);
+                match (circuit_to_cluster.get(&box1), circuit_to_cluster.get(&box2)) {
                     (Some(&new_cluster), Some(&old_cluster)) if new_cluster != old_cluster => {
-                        // move pos2's clusters to pos1
-                        let mut pos2_circuits = cluster_to_circuits.remove(&old_cluster).unwrap();
-                        pos2_circuits.iter().for_each(|pos| {
+                        // move box2's clusters to box1
+                        let mut box2_circuits = cluster_to_circuits.remove(&old_cluster).unwrap();
+                        box2_circuits.iter().for_each(|pos| {
                             *circuit_to_cluster.get_mut(&pos).unwrap() = new_cluster
                         });
                         #[cfg(debug_assertions)]
@@ -67,30 +66,30 @@ pub fn get_result(input: &[u8]) -> isize {
                         cluster_to_circuits
                             .get_mut(&new_cluster)
                             .unwrap()
-                            .append(&mut pos2_circuits);
+                            .append(&mut box2_circuits);
                     }
                     (Some(_), Some(_)) => {}
                     (Some(&cluster), None) => {
-                        // add pos2 to pos1's cluster
-                        circuit_to_cluster.insert(pos2, cluster);
-                        cluster_to_circuits.get_mut(&cluster).unwrap().push(pos2);
+                        // add box2 to box1's cluster
+                        circuit_to_cluster.insert(box2, cluster);
+                        cluster_to_circuits.get_mut(&cluster).unwrap().push(box2);
                         #[cfg(debug_assertions)]
-                        println!("add to cluster {}: {:?}", cluster, pos2);
+                        println!("add to cluster {}: {:?}", cluster, box2);
                     }
                     (None, Some(&cluster)) => {
-                        // add pos1 to pos2's cluster
-                        circuit_to_cluster.insert(pos1, cluster);
-                        cluster_to_circuits.get_mut(&cluster).unwrap().push(pos1);
+                        // add box1 to box2's cluster
+                        circuit_to_cluster.insert(box1, cluster);
+                        cluster_to_circuits.get_mut(&cluster).unwrap().push(box1);
                         #[cfg(debug_assertions)]
-                        println!("add to cluster {}: {:?}", cluster, pos2);
+                        println!("add to cluster {}: {:?}", cluster, box2);
                     }
                     (None, None) => {
-                        // create new cluster with both pos1 and pos2
-                        circuit_to_cluster.insert(pos1, next_cluster);
-                        circuit_to_cluster.insert(pos2, next_cluster);
-                        cluster_to_circuits.insert(next_cluster, vec![pos1, pos2]);
+                        // create new cluster with both box1 and box2
+                        circuit_to_cluster.insert(box1, next_cluster);
+                        circuit_to_cluster.insert(box2, next_cluster);
+                        cluster_to_circuits.insert(next_cluster, vec![box1, box2]);
                         #[cfg(debug_assertions)]
-                        println!("new cluster {} {:?} {:?}", next_cluster, pos1, pos2);
+                        println!("new cluster {} {:?} {:?}", next_cluster, box1, box2);
                         next_cluster += 1;
                     }
                 }
@@ -106,7 +105,7 @@ pub fn get_result(input: &[u8]) -> isize {
             circuit_to_cluster.len() < boxes.len() || cluster_to_circuits.len() > 1
         })
         .last();
-    last_pair.0.0 * last_pair.1.0
+    boxes[last_pair.0].0 * boxes[last_pair.1].0
 }
 
 pub fn main() {
