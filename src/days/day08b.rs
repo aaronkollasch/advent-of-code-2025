@@ -1,5 +1,4 @@
 use crate::common::parse;
-use hashbrown::HashMap;
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 
@@ -63,9 +62,10 @@ pub fn get_result(input: &[u8]) -> isize {
     }
     closest.sort_unstable();
 
-    let mut circuit_to_cluster: HashMap<usize, usize> = HashMap::with_capacity(1000);
-    let mut cluster_to_circuits: HashMap<usize, Vec<usize>> = HashMap::with_capacity(1000);
-    let mut next_cluster: usize = 0;
+    let mut circuit_to_cluster = [usize::MAX; 1000];
+    let mut cluster_to_circuits: Vec<Vec<usize>> = Vec::with_capacity(1000);
+    let mut num_connected: usize = 0;
+    let mut num_clusters: usize = 0;
     let mut last_pair: (usize, usize) = (42, 42);
     #[cfg(debug_assertions)]
     let mut i_pair = 0usize;
@@ -76,59 +76,64 @@ pub fn get_result(input: &[u8]) -> isize {
         .take_while(|pair| {
             let (box1, box2) = (pair.box1, pair.box2);
             last_pair = (box1, box2);
-            match (circuit_to_cluster.get(&box1), circuit_to_cluster.get(&box2)) {
-                (Some(&new_cluster), Some(&old_cluster)) if new_cluster != old_cluster => {
-                    // move box2's clusters to box1
-                    let mut box2_circuits = cluster_to_circuits.remove(&old_cluster).unwrap();
-                    box2_circuits
-                        .iter()
-                        .for_each(|pos| *circuit_to_cluster.get_mut(pos).unwrap() = new_cluster);
-                    #[cfg(debug_assertions)]
-                    println!("merge clusters {} -> {}", old_cluster, new_cluster);
-                    cluster_to_circuits
-                        .get_mut(&new_cluster)
-                        .unwrap()
-                        .append(&mut box2_circuits);
-                }
-                (Some(_), Some(_)) => {}
-                (Some(&cluster), None) => {
-                    // add box2 to box1's cluster
-                    circuit_to_cluster.insert(box2, cluster);
-                    cluster_to_circuits.get_mut(&cluster).unwrap().push(box2);
-                    #[cfg(debug_assertions)]
-                    println!("add to cluster {}: {:?}", cluster, box2);
-                }
-                (None, Some(&cluster)) => {
-                    // add box1 to box2's cluster
-                    circuit_to_cluster.insert(box1, cluster);
-                    cluster_to_circuits.get_mut(&cluster).unwrap().push(box1);
-                    #[cfg(debug_assertions)]
-                    println!("add to cluster {}: {:?}", cluster, box2);
-                }
-                (None, None) => {
+            match (circuit_to_cluster[box1], circuit_to_cluster[box2]) {
+                (usize::MAX, usize::MAX) => {
                     // create new cluster with both box1 and box2
-                    circuit_to_cluster.insert(box1, next_cluster);
-                    circuit_to_cluster.insert(box2, next_cluster);
-                    cluster_to_circuits.insert(next_cluster, vec![box1, box2]);
+                    let next_cluster = cluster_to_circuits.len();
                     #[cfg(debug_assertions)]
                     println!("new cluster {} {:?} {:?}", next_cluster, box1, box2);
-                    next_cluster += 1;
+                    circuit_to_cluster[box1] = next_cluster;
+                    circuit_to_cluster[box2] = next_cluster;
+                    cluster_to_circuits.push(vec![box1, box2]);
+                    num_connected += 2;
+                    num_clusters += 1;
                 }
+                (cluster, usize::MAX) => {
+                    // add box2 to box1's cluster
+                    #[cfg(debug_assertions)]
+                    println!("add to cluster {}: {:?}", cluster, box2);
+                    circuit_to_cluster[box2] = cluster;
+                    cluster_to_circuits[cluster].push(box2);
+                    num_connected += 1;
+                }
+                (usize::MAX, cluster) => {
+                    // add box1 to box2's cluster
+                    #[cfg(debug_assertions)]
+                    println!("add to cluster {}: {:?}", cluster, box2);
+                    circuit_to_cluster[box1] = cluster;
+                    cluster_to_circuits[cluster].push(box1);
+                    num_connected += 1;
+                }
+                (cluster1, cluster2) if cluster1 != cluster2 => {
+                    // move box2's clusters to box1
+                    let (old_cluster, new_cluster) =
+                        (cluster1.max(cluster2), cluster1.min(cluster2));
+                    #[cfg(debug_assertions)]
+                    println!("merge clusters {} -> {}", old_cluster, new_cluster);
+                    cluster_to_circuits[old_cluster]
+                        .iter()
+                        .for_each(|&pos| circuit_to_cluster[pos] = new_cluster);
+                    let (new, old) = cluster_to_circuits.split_at_mut(old_cluster);
+                    new[new_cluster].append(&mut old[0]);
+                    num_clusters -= 1;
+                }
+                _ => {}
             }
+            let to_continue = num_connected < boxes.len() || num_clusters > 1;
             #[cfg(debug_assertions)]
             {
                 println!(
                     "step {}/{}: {}/{} connected in {} cluster, continue? {}",
                     i_pair,
                     _closest_len,
-                    circuit_to_cluster.len(),
+                    num_connected,
                     boxes.len(),
-                    cluster_to_circuits.len(),
-                    circuit_to_cluster.len() < boxes.len() || cluster_to_circuits.len() > 1
+                    num_clusters,
+                    to_continue,
                 );
                 i_pair += 1;
             }
-            circuit_to_cluster.len() < boxes.len() || cluster_to_circuits.len() > 1
+            to_continue
         })
         .last();
     boxes[last_pair.0].0 * boxes[last_pair.1].0
