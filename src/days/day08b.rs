@@ -1,6 +1,5 @@
-use std::collections::HashMap;
-
 use crate::common::parse;
+use hashbrown::HashMap;
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 
@@ -83,7 +82,7 @@ pub fn get_result(input: &[u8]) -> isize {
                     let mut box2_circuits = cluster_to_circuits.remove(&old_cluster).unwrap();
                     box2_circuits
                         .iter()
-                        .for_each(|pos| *circuit_to_cluster.get_mut(&pos).unwrap() = new_cluster);
+                        .for_each(|pos| *circuit_to_cluster.get_mut(pos).unwrap() = new_cluster);
                     #[cfg(debug_assertions)]
                     println!("merge clusters {} -> {}", old_cluster, new_cluster);
                     cluster_to_circuits

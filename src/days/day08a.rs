@@ -1,6 +1,7 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
 use crate::common::parse;
+use hashbrown::HashMap;
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 
@@ -61,9 +62,12 @@ pub fn get_result(input: &[u8], num_connections: usize) -> usize {
     }
     #[cfg(debug_assertions)]
     println!("closest: {:?}", closest);
+
     let mut circuit_to_cluster: HashMap<usize, usize> = HashMap::with_capacity(1000);
     let mut cluster_to_circuits: HashMap<usize, Vec<usize>> = HashMap::with_capacity(1000);
     let mut next_cluster: usize = 0;
+    #[cfg(debug_assertions)]
+    let mut _cluster_count_hwm = 0;
     closest.values().for_each(|&(box1, box2)| {
         match (circuit_to_cluster.get(&box1), circuit_to_cluster.get(&box2)) {
             (Some(&new_cluster), Some(&old_cluster)) if new_cluster != old_cluster => {
@@ -71,7 +75,7 @@ pub fn get_result(input: &[u8], num_connections: usize) -> usize {
                 let mut pos2_circuits = cluster_to_circuits.remove(&old_cluster).unwrap();
                 pos2_circuits
                     .iter()
-                    .for_each(|pos| *circuit_to_cluster.get_mut(&pos).unwrap() = new_cluster);
+                    .for_each(|pos| *circuit_to_cluster.get_mut(pos).unwrap() = new_cluster);
                 #[cfg(debug_assertions)]
                 println!(
                     "merge clusters {} -> {}: {:?} + {:?}",
@@ -107,15 +111,20 @@ pub fn get_result(input: &[u8], num_connections: usize) -> usize {
                 next_cluster += 1;
             }
         }
+        #[cfg(debug_assertions)]
+        if cluster_to_circuits.len() > _cluster_count_hwm {
+            _cluster_count_hwm = cluster_to_circuits.len();
+        }
     });
     #[cfg(debug_assertions)]
     println!(
-        "cluster to circuits: {:?}",
+        "cluster to circuits (max size {}): {:?}",
+        _cluster_count_hwm,
         cluster_to_circuits
             .iter()
             .sorted_by_key(|&(_, c)| usize::MAX - c.len())
             .take(3)
-            .collect::<Vec<_>>()
+            .collect::<Vec<_>>(),
     );
     cluster_to_circuits
         .into_values()
