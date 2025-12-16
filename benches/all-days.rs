@@ -19,8 +19,8 @@ fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("day07b", |b| b.iter(|| day07b::get_result(include_bytes!("../inputs/day07.txt"))));
     c.bench_function("day08a", |b| b.iter(|| day08a::get_result(include_bytes!("../inputs/day08.txt"), 1000)));
     c.bench_function("day08b", |b| b.iter(|| day08b::get_result(include_bytes!("../inputs/day08.txt"))));
-    // c.bench_function("day09a", |b| b.iter(|| day09a::get_result(include_bytes!("../inputs/day09.txt"))));
-    // c.bench_function("day09b", |b| b.iter(|| day09b::get_result(include_bytes!("../inputs/day09.txt"))));
+    c.bench_function("day09a", |b| b.iter(|| day09a::get_result(include_bytes!("../inputs/day09.txt"))));
+    c.bench_function("day09b", |b| b.iter(|| day09b::get_result(include_bytes!("../inputs/day09.txt"))));
     // c.bench_function("day10a", |b| b.iter(|| day10a::get_result(include_bytes!("../inputs/day10.txt"))));
     // c.bench_function("day10b", |b| b.iter(|| day10b::get_result(include_bytes!("../inputs/day10.txt"))));
     // c.bench_function("day11a", |b| b.iter(|| day11a::get_result(include_bytes!("../inputs/day11.txt"))));
