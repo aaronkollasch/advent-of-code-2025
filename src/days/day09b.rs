@@ -185,53 +185,58 @@ pub fn get_result(input: &[u8]) -> usize {
             QuadrantInverted::Outer(Quadrant::LR)
         };
 
-        for j in i + 1..red_tiles.len() {
-            let (pos1, pos2) = (red_tiles[i], red_tiles[j]);
-            let area = area(pos1, pos2);
-            let (pos2_dx, pos2_dy) = (pos2.0 - pos1.0, pos2.1 - pos1.1);
-            // skip areas <= largest_area and if dx or dy == 0,
-            // or if dx, dy is outside of inner angle
-            if area > largest_area
-                && let Some(_pos2_quadrant) = Quadrant::from(pos2_dx, pos2_dy)
-                && allowed_box_quadrants.contains(pos2_dx, pos2_dy)
-            {
-                // check all points after i, in the same quadrant as the i->j box
-                let conflict_box = Box::from(pos1, pos2).shrink_1();
-                // #[cfg(debug_assertions)]
-                // println!(
-                //     "testing area {} for ({}-{}) {:?}-{:?}, quadrant {:?}, dx {} dy {}, conflict {}",
-                //     area, i, j, pos1, pos2, _pos2_quadrant, pos2_dx, pos2_dy, conflict_box
-                // );
-                let mut has_conflict = false;
-                let mut last_pos = pos1;
-                let _ = (i + 1..red_tiles.len())
-                    .chain(0..i)
-                    .take_while(|&k| {
-                        let pos3 = red_tiles[k];
-                        let conflict_found = conflict_box.contains_line(last_pos, pos3);
-                        if conflict_found {
-                            // #[cfg(debug_assertions)]
-                            // println!(
-                            //     "conflict found for {:?}-{:?} with box {}",
-                            //     last_pos, pos3, conflict_box
-                            // );
-                            has_conflict = true;
-                            return false;
-                        }
-                        last_pos = pos3;
-                        true
-                    })
-                    .last();
-                if !has_conflict {
-                    #[cfg(debug_assertions)]
-                    println!(
-                        "new largest area {} for ({}-{}) {:?} - {:?}",
-                        area, i, j, pos1, pos2
-                    );
-                    largest_area = area;
+        let _ = (i + 1..red_tiles.len())
+            .take_while(|&j| {
+                let (pos1, pos2) = (red_tiles[i], red_tiles[j]);
+                let area = area(pos1, pos2);
+                let (pos2_dx, pos2_dy) = (pos2.0 - pos1.0, pos2.1 - pos1.1);
+                // skip areas <= largest_area and if dx or dy == 0,
+                // or if dx, dy is outside of inner angle
+                if area > largest_area
+                    && let Some(_pos2_quadrant) = Quadrant::from(pos2_dx, pos2_dy)
+                    && allowed_box_quadrants.contains(pos2_dx, pos2_dy)
+                {
+                    // check all points after i, in the same quadrant as the i->j box
+                    let conflict_box = Box::from(pos1, pos2).shrink_1();
+                    // #[cfg(debug_assertions)]
+                    // println!(
+                    //     "testing area {} for ({}-{}) {:?}-{:?}, quadrant {:?}, dx {} dy {}, conflict {}",
+                    //     area, i, j, pos1, pos2, _pos2_quadrant, pos2_dx, pos2_dy, conflict_box
+                    // );
+                    let mut has_conflict = false;
+                    let mut last_pos = pos1;
+                    let _ = (i + 1..red_tiles.len())
+                        .chain(0..i)
+                        .take_while(|&k| {
+                            let pos3 = red_tiles[k];
+                            let conflict_found = conflict_box.contains_line(last_pos, pos3);
+                            if conflict_found {
+                                #[cfg(debug_assertions)]
+                                println!(
+                                    "conflict found for {:?}-{:?} with box {:?}",
+                                    last_pos, pos3, conflict_box
+                                );
+                                has_conflict = true;
+                                return false;
+                            }
+                            last_pos = pos3;
+                            true
+                        })
+                        .last();
+                    if !has_conflict {
+                        #[cfg(debug_assertions)]
+                        println!(
+                            "new largest area {} for ({}-{}) {:?} - {:?}",
+                            area, i, j, pos1, pos2
+                        );
+                        largest_area = area;
+                    } else {
+                        return false;
+                    }
                 }
-            }
-        }
+                true
+            })
+            .last();
     }
     largest_area
 }
