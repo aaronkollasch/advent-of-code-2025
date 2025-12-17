@@ -1,9 +1,15 @@
 use crate::common::parse;
 
 type Number = usize;
+
+// the number of furthest pairs from the center to test area between all pairs
+// NUM_TOP_PAIRS can be reduced if the top N does not contain the correct result
+const NUM_TOP_PAIRS: Number = 8;
+
 #[allow(unused)]
 type Pos = (Number, Number);
 
+#[inline]
 #[allow(unused)]
 fn area(pos1: Pos, pos2: Pos) -> Number {
     let dx = pos1.0.abs_diff(pos2.0) + 1;
@@ -26,23 +32,16 @@ pub fn get_result(input: &[u8]) -> Number {
         .iter()
         .fold((0usize, 0usize), |acc, &pos| (acc.0 + pos.0, acc.1 + pos.1));
     let center = (center.0 / red_tiles.len(), center.1 / red_tiles.len());
-    let min_distance = (center.0 + center.1) * 3 / 5;
+    // let min_distance = (center.0 + center.1) * 3 / 5;
+    red_tiles.sort_unstable_by_key(|&pos| pos.0.abs_diff(center.0) + pos.1.abs_diff(center.1));
     #[cfg(debug_assertions)]
     println!("approximate center: {:?}", center);
     let mut largest_area = 0;
-    for i in 0..red_tiles.len() - 1 {
+    for i in red_tiles.len().saturating_sub(NUM_TOP_PAIRS)..red_tiles.len() - 1 {
         let pos1 = red_tiles[i];
-        let (dx, dy) = (pos1.0.abs_diff(center.0), pos1.1.abs_diff(center.1));
-        if dx + dy < min_distance {
-            continue;
-        }
         for j in i + 1..red_tiles.len() {
             let pos2 = red_tiles[j];
-            let (dx, dy) = (pos2.0.abs_diff(pos1.0) + 1, pos2.1.abs_diff(pos1.1) + 1);
-            if dx + dy < min_distance {
-                continue;
-            }
-            let area = dx * dy;
+            let area = area(pos1, pos2);
             #[cfg(debug_assertions)]
             println!("area {} for {:?} - {:?}", area, pos1, pos2);
             largest_area = largest_area.max(area);
