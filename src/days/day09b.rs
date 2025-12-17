@@ -15,7 +15,7 @@ fn area(pos1: Pos, pos2: Pos) -> usize {
     dx * dy
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 enum Quadrant {
     LR,
     LL,
@@ -63,16 +63,20 @@ impl Quadrant {
     }
 }
 
-enum QuadrantInverted {
-    Inner(Quadrant),
-    Outer(Quadrant),
+#[derive(Debug, PartialEq, Eq)]
+#[allow(unused)]
+enum MultiQuadrant {
+    Single(Quadrant),
+    Triple(Quadrant),
+    Any,
 }
 
-impl QuadrantInverted {
+impl MultiQuadrant {
     fn contains(&self, dx: Number, dy: Number) -> bool {
         match self {
-            Self::Inner(quadrant) => quadrant.contains(dx, dy),
-            Self::Outer(quadrant) => quadrant.flip().contains_exclusive(dx, dy),
+            Self::Single(quadrant) => quadrant.contains(dx, dy),
+            Self::Triple(quadrant) => quadrant.flip().contains_exclusive(dx, dy),
+            Self::Any => true,
         }
     }
 }
@@ -148,46 +152,47 @@ pub fn get_result(input: &[u8]) -> usize {
     );
     let mut largest_area = 0;
     for i in 0..red_tiles.len() - 1 {
-        let current = red_tiles[i];
+        let pos1 = red_tiles[i];
         let previous = red_tiles
             .get(i.wrapping_sub(1))
             .unwrap_or_else(|| red_tiles.last().unwrap());
         let next = red_tiles
             .get(i + 1)
             .unwrap_or_else(|| red_tiles.first().unwrap());
-        let (dx_0, dy_0) = (current.0 - previous.0, current.1 - previous.1);
-        let (dx_1, dy_1) = (next.0 - current.0, next.1 - current.1);
+        let (dx_0, dy_0) = (pos1.0 - previous.0, pos1.1 - previous.1);
+        let (dx_1, dy_1) = (next.0 - pos1.0, next.1 - pos1.1);
         #[cfg(debug_assertions)]
-        println!("{}: {:?}-{:?}-{:?}", i, previous, current, next);
+        println!("{}: {:?}-{:?}-{:?}", i, previous, pos1, next);
         #[cfg(debug_assertions)]
         println!("d's: ({}, {}), ({}, {})", dx_0, dy_0, dx_1, dy_1);
 
         let allowed_box_quadrants = if dx_0 == 0 && dy_0 < 0 && dx_1 > 0 {
             #[cfg(debug_assertions)]
             println!("90deg lower right");
-            QuadrantInverted::Inner(Quadrant::LR)
+            MultiQuadrant::Single(Quadrant::LR)
         } else if dx_0 == 0 && dy_0 > 0 && dx_1 < 0 {
             #[cfg(debug_assertions)]
             println!("90deg upper left");
-            QuadrantInverted::Inner(Quadrant::UL)
+            MultiQuadrant::Single(Quadrant::UL)
         } else if dy_0 == 0 && dx_0 > 0 && dy_1 > 0 {
             #[cfg(debug_assertions)]
             println!("90deg lower left");
-            QuadrantInverted::Inner(Quadrant::LL)
+            MultiQuadrant::Single(Quadrant::LL)
         } else if dy_0 == 0 && dx_0 < 0 && dy_1 < 0 {
             #[cfg(debug_assertions)]
             println!("90deg upper right");
-            QuadrantInverted::Inner(Quadrant::UR)
+            MultiQuadrant::Single(Quadrant::UR)
         } else {
             // 270deg
             #[cfg(debug_assertions)]
             println!("270deg");
-            QuadrantInverted::Outer(Quadrant::LR)
+            // MultiQuadrant::Triple(Quadrant::LR)
+            MultiQuadrant::Any
         };
 
         let _ = (i + 1..red_tiles.len())
             .take_while(|&j| {
-                let (pos1, pos2) = (red_tiles[i], red_tiles[j]);
+                let pos2 = red_tiles[j];
                 let area = area(pos1, pos2);
                 let (pos2_dx, pos2_dy) = (pos2.0 - pos1.0, pos2.1 - pos1.1);
                 // skip areas <= largest_area and if dx or dy == 0,
