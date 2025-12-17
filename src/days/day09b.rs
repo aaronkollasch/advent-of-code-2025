@@ -228,15 +228,15 @@ pub fn get_result(input: &[u8]) -> usize {
                             true
                         })
                         .last();
-                    if !has_conflict {
+                    if has_conflict {
+                        return false;
+                    } else {
                         #[cfg(debug_assertions)]
                         println!(
                             "new largest area {} for ({}-{}) {:?} - {:?}",
                             area, i, j, pos1, pos2
                         );
                         largest_area = area;
-                    } else {
-                        return false;
                     }
                 }
                 true
