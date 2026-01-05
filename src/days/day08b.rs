@@ -1,23 +1,17 @@
 use crate::common::parse;
 use itertools::Itertools;
-use ordered_float::OrderedFloat;
 
 type Number = isize;
 
 type Pos = (Number, Number, Number);
 
-type Float = OrderedFloat<f32>;
-
-fn distance(pos1: Pos, pos2: Pos) -> Float {
-    Float::from(
-        (((pos1.0 - pos2.0).pow(2) + (pos1.1 - pos2.1).pow(2) + (pos1.2 - pos2.2).pow(2)) as f32)
-            .sqrt(),
-    )
+fn distance(pos1: Pos, pos2: Pos) -> Number {
+    (pos1.0 - pos2.0).pow(2) + (pos1.1 - pos2.1).pow(2) + (pos1.2 - pos2.2).pow(2)
 }
 
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
 struct DistancePair {
-    dist: Float,
+    dist: Number,
     box1: usize,
     box2: usize,
 }

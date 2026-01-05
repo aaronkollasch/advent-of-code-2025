@@ -2,19 +2,13 @@ use std::collections::BTreeMap;
 
 use crate::common::parse;
 use itertools::Itertools;
-use ordered_float::OrderedFloat;
 
 type Number = isize;
 
 type Pos = (Number, Number, Number);
 
-type Float = OrderedFloat<f32>;
-
-fn distance(box1: Pos, box2: Pos) -> Float {
-    Float::from(
-        (((box1.0 - box2.0).pow(2) + (box1.1 - box2.1).pow(2) + (box1.2 - box2.2).pow(2)) as f32)
-            .sqrt(),
-    )
+fn distance(box1: Pos, box2: Pos) -> Number {
+    (box1.0 - box2.0).pow(2) + (box1.1 - box2.1).pow(2) + (box1.2 - box2.2).pow(2)
 }
 
 pub fn get_result(input: &[u8], num_connections: usize) -> usize {
@@ -40,7 +34,7 @@ pub fn get_result(input: &[u8], num_connections: usize) -> usize {
             if let Some(entry) = closest.last_entry() {
                 last_dist = *entry.key();
             } else {
-                last_dist = Float::from(1000000f32);
+                last_dist = Number::MAX;
             }
             if dist < last_dist {
                 if closest.len() == num_connections {
