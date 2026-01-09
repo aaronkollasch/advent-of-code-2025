@@ -1,7 +1,8 @@
 use crate::common::parse;
 use itertools::Itertools;
 
-type Number = isize;
+type Number = i64;
+type Circuit = usize;
 
 type Pos = (Number, Number, Number);
 
@@ -12,11 +13,11 @@ fn distance(pos1: Pos, pos2: Pos) -> Number {
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
 struct DistancePair {
     dist: Number,
-    box1: usize,
-    box2: usize,
+    box1: Circuit,
+    box2: Circuit,
 }
 
-pub fn get_result(input: &[u8]) -> isize {
+pub fn get_result(input: &[u8]) -> Number {
     let mut boxes = Vec::with_capacity(1000);
     boxes.extend(
         input
@@ -33,8 +34,8 @@ pub fn get_result(input: &[u8]) -> isize {
     println!("num boxes: {}", boxes.len());
 
     let mut closest = Vec::with_capacity(boxes.len() * (boxes.len() - 1) / 2);
-    for i in 0..boxes.len() {
-        for j in i + 1..boxes.len() {
+    for i in 0..boxes.len() as Circuit {
+        for j in i + 1..boxes.len() as Circuit {
             let (pos1, pos2) = (boxes[i], boxes[j]);
             let dist = distance(pos1, pos2);
             closest.push(DistancePair {
@@ -56,8 +57,10 @@ pub fn get_result(input: &[u8]) -> isize {
     }
     closest.sort_unstable();
 
-    let mut circuit_to_cluster = [usize::MAX; 1000];
-    let mut cluster_to_circuits: Vec<Vec<usize>> = Vec::with_capacity(1000);
+    type Cluster = u16;
+    const NULL_CLUSTER: Cluster = Cluster::MAX;
+    let mut circuit_to_cluster = [NULL_CLUSTER; 1000];
+    let mut cluster_to_circuits: Vec<Vec<Circuit>> = Vec::with_capacity(300);
     let mut num_connected: usize = 0;
     let mut num_clusters: usize = 0;
     let mut last_pair: (usize, usize) = (42, 42);
@@ -71,9 +74,9 @@ pub fn get_result(input: &[u8]) -> isize {
             let (box1, box2) = (pair.box1, pair.box2);
             last_pair = (box1, box2);
             match (circuit_to_cluster[box1], circuit_to_cluster[box2]) {
-                (usize::MAX, usize::MAX) => {
+                (NULL_CLUSTER, NULL_CLUSTER) => {
                     // create new cluster with both box1 and box2
-                    let next_cluster = cluster_to_circuits.len();
+                    let next_cluster = cluster_to_circuits.len() as Cluster;
                     #[cfg(debug_assertions)]
                     println!("new cluster {} {:?} {:?}", next_cluster, box1, box2);
                     circuit_to_cluster[box1] = next_cluster;
@@ -85,20 +88,20 @@ pub fn get_result(input: &[u8]) -> isize {
                     num_connected += 2;
                     num_clusters += 1;
                 }
-                (cluster, usize::MAX) => {
+                (cluster, NULL_CLUSTER) => {
                     // add box2 to box1's cluster
                     #[cfg(debug_assertions)]
                     println!("add to cluster {}: {:?}", cluster, box2);
                     circuit_to_cluster[box2] = cluster;
-                    cluster_to_circuits[cluster].push(box2);
+                    cluster_to_circuits[cluster as usize].push(box2);
                     num_connected += 1;
                 }
-                (usize::MAX, cluster) => {
+                (NULL_CLUSTER, cluster) => {
                     // add box1 to box2's cluster
                     #[cfg(debug_assertions)]
                     println!("add to cluster {}: {:?}", cluster, box2);
                     circuit_to_cluster[box1] = cluster;
-                    cluster_to_circuits[cluster].push(box1);
+                    cluster_to_circuits[cluster as usize].push(box1);
                     num_connected += 1;
                 }
                 (cluster1, cluster2) if cluster1 != cluster2 => {
@@ -107,11 +110,11 @@ pub fn get_result(input: &[u8]) -> isize {
                         (cluster1.max(cluster2), cluster1.min(cluster2));
                     #[cfg(debug_assertions)]
                     println!("merge clusters {} -> {}", old_cluster, new_cluster);
-                    cluster_to_circuits[old_cluster]
+                    cluster_to_circuits[old_cluster as usize]
                         .iter()
                         .for_each(|&pos| circuit_to_cluster[pos] = new_cluster);
-                    let (new, old) = cluster_to_circuits.split_at_mut(old_cluster);
-                    new[new_cluster].append(&mut old[0]);
+                    let (new, old) = cluster_to_circuits.split_at_mut(old_cluster as usize);
+                    new[new_cluster as usize].append(&mut old[0]);
                     num_clusters -= 1;
                 }
                 _ => {}

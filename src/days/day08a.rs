@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use crate::common::parse;
 use itertools::Itertools;
 
-type Number = isize;
+type Number = i64;
 
 type Pos = (Number, Number, Number);
 
@@ -56,15 +56,17 @@ pub fn get_result(input: &[u8], num_connections: usize) -> usize {
     #[cfg(debug_assertions)]
     println!("closest: {:?}", closest);
 
-    let mut circuit_to_cluster = [usize::MAX; 1000];
-    let mut cluster_to_circuits: Vec<Vec<usize>> = Vec::with_capacity(1000);
+    type Cluster = u16;
+    const NULL_CLUSTER: Cluster = Cluster::MAX;
+    let mut circuit_to_cluster = [NULL_CLUSTER; 1000];
+    let mut cluster_to_circuits: Vec<Vec<usize>> = Vec::with_capacity(300);
     #[cfg(debug_assertions)]
     let mut max_num_clusters = 0usize;
     closest.values().for_each(|&(box1, box2)| {
         match (circuit_to_cluster[box1], circuit_to_cluster[box2]) {
-            (usize::MAX, usize::MAX) => {
+            (NULL_CLUSTER, NULL_CLUSTER) => {
                 // create new cluster with both box1 and box2
-                let next_cluster = cluster_to_circuits.len();
+                let next_cluster = cluster_to_circuits.len() as Cluster;
                 #[cfg(debug_assertions)]
                 println!("new cluster {} {:?} {:?}", next_cluster, box1, box2);
                 circuit_to_cluster[box1] = next_cluster;
@@ -74,36 +76,39 @@ pub fn get_result(input: &[u8], num_connections: usize) -> usize {
                 new_circuits.push(box2);
                 cluster_to_circuits.push(new_circuits);
             }
-            (cluster, usize::MAX) => {
+            (cluster, NULL_CLUSTER) => {
                 // add box2 to box1's cluster
                 #[cfg(debug_assertions)]
                 println!("add to cluster {}: {:?}", cluster, box2);
                 circuit_to_cluster[box2] = cluster;
-                cluster_to_circuits[cluster].push(box2);
+                cluster_to_circuits[cluster as usize].push(box2);
             }
-            (usize::MAX, cluster) => {
+            (NULL_CLUSTER, cluster) => {
                 // add box1 to box2's cluster
                 #[cfg(debug_assertions)]
                 println!("add to cluster {}: {:?}", cluster, box2);
                 circuit_to_cluster[box1] = cluster;
-                cluster_to_circuits[cluster].push(box1);
+                cluster_to_circuits[cluster as usize].push(box1);
             }
             (cluster1, cluster2) if cluster1 != cluster2 => {
                 // move box2's clusters to box1
                 let (old_cluster, new_cluster) = (cluster1.max(cluster2), cluster1.min(cluster2));
                 #[cfg(debug_assertions)]
                 println!("merge clusters {} -> {}", old_cluster, new_cluster);
-                cluster_to_circuits[old_cluster]
+                cluster_to_circuits[old_cluster as usize]
                     .iter()
                     .for_each(|&pos| circuit_to_cluster[pos] = new_cluster);
-                let (new, old) = cluster_to_circuits.split_at_mut(old_cluster);
-                new[new_cluster].append(&mut old[0]);
+                let (new, old) = cluster_to_circuits.split_at_mut(old_cluster as usize);
+                new[new_cluster as usize].append(&mut old[0]);
             }
             _ => {}
         }
         #[cfg(debug_assertions)]
         {
-            let num_clusters = cluster_to_circuits.iter().filter(|&circuits| circuits.len() > 0).count();
+            let num_clusters = cluster_to_circuits
+                .iter()
+                .filter(|&circuits| circuits.len() > 0)
+                .count();
             if num_clusters > max_num_clusters {
                 max_num_clusters = num_clusters;
             }
