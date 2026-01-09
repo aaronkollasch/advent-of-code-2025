@@ -38,6 +38,9 @@ pub fn get_result(input: &[u8]) -> Number {
         for j in i + 1..boxes.len() as Circuit {
             let (pos1, pos2) = (boxes[i], boxes[j]);
             let dist = distance(pos1, pos2);
+            if dist > 300_000_000 {
+                continue;
+            }
             closest.push(DistancePair {
                 dist,
                 box1: i,
@@ -56,6 +59,8 @@ pub fn get_result(input: &[u8]) -> Number {
         closest.truncate(7000);
     }
     closest.sort_unstable();
+    #[cfg(debug_assertions)]
+    println!("closest: {:?}", closest);
 
     const MAX_CLUSTERS: usize = 300;
     type Cluster = u16;

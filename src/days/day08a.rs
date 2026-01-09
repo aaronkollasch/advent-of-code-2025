@@ -30,6 +30,9 @@ pub fn get_result(input: &[u8], num_connections: usize) -> usize {
         for j in i + 1..boxes.len() {
             let (box1, box2) = (boxes[i], boxes[j]);
             let dist = distance(box1, box2);
+            if dist > 100_000_000 {
+                continue;
+            }
             let last_dist;
             if let Some(entry) = closest.last_entry() {
                 last_dist = *entry.key();
