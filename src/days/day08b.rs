@@ -57,10 +57,16 @@ pub fn get_result(input: &[u8]) -> Number {
     }
     closest.sort_unstable();
 
+    const MAX_CLUSTERS: usize = 300;
     type Cluster = u16;
     const NULL_CLUSTER: Cluster = Cluster::MAX;
+    type Circuit = usize;
+    const NULL_CIRCUIT: Circuit = Circuit::MAX;
     let mut circuit_to_cluster = [NULL_CLUSTER; 1000];
-    let mut cluster_to_circuits: Vec<Vec<Circuit>> = Vec::with_capacity(300);
+    let mut circuit_to_next_circuit: [Circuit; 1000] = [NULL_CIRCUIT; 1000];
+    let mut cluster_starts: [Circuit; MAX_CLUSTERS] = [0; MAX_CLUSTERS];
+    let mut cluster_ends: [Circuit; MAX_CLUSTERS] = [0; MAX_CLUSTERS];
+    let mut next_cluster: Cluster = 0;
     let mut num_connected: usize = 0;
     let mut num_clusters: usize = 0;
     let mut last_pair: (usize, usize) = (42, 42);
@@ -76,24 +82,25 @@ pub fn get_result(input: &[u8]) -> Number {
             match (circuit_to_cluster[box1], circuit_to_cluster[box2]) {
                 (NULL_CLUSTER, NULL_CLUSTER) => {
                     // create new cluster with both box1 and box2
-                    let next_cluster = cluster_to_circuits.len() as Cluster;
                     #[cfg(debug_assertions)]
                     println!("new cluster {} {:?} {:?}", next_cluster, box1, box2);
                     circuit_to_cluster[box1] = next_cluster;
                     circuit_to_cluster[box2] = next_cluster;
-                    let mut new_circuits = Vec::with_capacity(16);
-                    new_circuits.push(box1);
-                    new_circuits.push(box2);
-                    cluster_to_circuits.push(new_circuits);
+                    circuit_to_next_circuit[box1] = box2 as Circuit;
+                    cluster_starts[next_cluster as usize] = box1 as Circuit;
+                    cluster_ends[next_cluster as usize] = box2 as Circuit;
                     num_connected += 2;
                     num_clusters += 1;
+                    next_cluster += 1;
                 }
                 (cluster, NULL_CLUSTER) => {
                     // add box2 to box1's cluster
                     #[cfg(debug_assertions)]
                     println!("add to cluster {}: {:?}", cluster, box2);
                     circuit_to_cluster[box2] = cluster;
-                    cluster_to_circuits[cluster as usize].push(box2);
+                    let last_circuit_pointer = cluster_ends[cluster as usize];
+                    circuit_to_next_circuit[last_circuit_pointer as usize] = box2 as Circuit;
+                    cluster_ends[cluster as usize] = box2 as Circuit;
                     num_connected += 1;
                 }
                 (NULL_CLUSTER, cluster) => {
@@ -101,7 +108,9 @@ pub fn get_result(input: &[u8]) -> Number {
                     #[cfg(debug_assertions)]
                     println!("add to cluster {}: {:?}", cluster, box2);
                     circuit_to_cluster[box1] = cluster;
-                    cluster_to_circuits[cluster as usize].push(box1);
+                    let last_circuit_pointer = cluster_ends[cluster as usize];
+                    circuit_to_next_circuit[last_circuit_pointer as usize] = box1 as Circuit;
+                    cluster_ends[cluster as usize] = box1 as Circuit;
                     num_connected += 1;
                 }
                 (cluster1, cluster2) if cluster1 != cluster2 => {
@@ -110,11 +119,14 @@ pub fn get_result(input: &[u8]) -> Number {
                         (cluster1.max(cluster2), cluster1.min(cluster2));
                     #[cfg(debug_assertions)]
                     println!("merge clusters {} -> {}", old_cluster, new_cluster);
-                    cluster_to_circuits[old_cluster as usize]
-                        .iter()
-                        .for_each(|&pos| circuit_to_cluster[pos] = new_cluster);
-                    let (new, old) = cluster_to_circuits.split_at_mut(old_cluster as usize);
-                    new[new_cluster as usize].append(&mut old[0]);
+                    let mut cluster_pointer = cluster_starts[old_cluster as usize];
+                    while cluster_pointer != NULL_CIRCUIT {
+                        circuit_to_cluster[cluster_pointer as usize] = new_cluster;
+                        cluster_pointer = circuit_to_next_circuit[cluster_pointer as usize];
+                    }
+                    circuit_to_next_circuit[cluster_ends[new_cluster as usize] as usize] =
+                        cluster_starts[old_cluster as usize];
+                    cluster_ends[new_cluster as usize] = cluster_ends[old_cluster as usize];
                     num_clusters -= 1;
                 }
                 _ => {}
