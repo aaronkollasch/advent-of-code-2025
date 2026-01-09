@@ -58,6 +58,8 @@ pub fn get_result(input: &[u8], num_connections: usize) -> usize {
 
     let mut circuit_to_cluster = [usize::MAX; 1000];
     let mut cluster_to_circuits: Vec<Vec<usize>> = Vec::with_capacity(1000);
+    #[cfg(debug_assertions)]
+    let mut max_num_clusters = 0usize;
     closest.values().for_each(|&(box1, box2)| {
         match (circuit_to_cluster[box1], circuit_to_cluster[box2]) {
             (usize::MAX, usize::MAX) => {
@@ -99,11 +101,19 @@ pub fn get_result(input: &[u8], num_connections: usize) -> usize {
             }
             _ => {}
         }
+        #[cfg(debug_assertions)]
+        {
+            let num_clusters = cluster_to_circuits.iter().filter(|&circuits| circuits.len() > 0).count();
+            if num_clusters > max_num_clusters {
+                max_num_clusters = num_clusters;
+            }
+        }
     });
     #[cfg(debug_assertions)]
     println!(
-        "cluster to circuits (max size {}): {:?}",
+        "cluster to circuits (max size {}, max num {}): {:?}",
         cluster_to_circuits.len(),
+        max_num_clusters,
         cluster_to_circuits
             .iter()
             .sorted_by_key(|&c| usize::MAX - c.len())
