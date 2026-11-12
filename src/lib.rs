@@ -1,6 +1,4 @@
 #![feature(int_roundings)]
-#![feature(slice_split_once)]
-#![feature(new_range_api)]
 
 pub mod common;
 pub mod days;
