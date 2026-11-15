@@ -1,5 +1,6 @@
 use good_lp::{
-    Expression, ProblemVariables, Solution, SolverModel, Variable, constraint, scip, variable,
+    Expression, ProblemVariables, Solution, SolverModel, Variable, constraint, default_solver,
+    variable,
 };
 
 use crate::common::{BitVec, parse};
@@ -33,7 +34,7 @@ fn compute_optimum(target: State, buttons: Vec<Button>) -> usize {
     let p: Vec<Variable> = problem.add_vector(variable().integer().min(0), buttons.len());
     // minimize total button presses
     let objective: Expression = p.iter().sum();
-    let mut model = problem.minimise(objective).using(scip);
+    let mut model = problem.minimise(objective).using(default_solver);
     for (i_machine, &machine_count) in target.iter().enumerate() {
         model = model.with(constraint!(
             p.iter()
