@@ -1,49 +1,12 @@
-use good_lp::{Expression, ProblemVariables, Solution, SolverModel, scip, constraint, Variable, variable};
-use std::{
-    cmp::Ordering,
-    hash::{Hash, Hasher},
+use good_lp::{
+    Expression, ProblemVariables, Solution, SolverModel, Variable, constraint, scip, variable,
 };
-
-use hashbrown::HashSet;
 
 use crate::common::{BitVec, parse};
 
 type Button = BitVec<u16>;
 type Count = u16;
-
-#[derive(Debug, Clone, Eq, PartialEq, PartialOrd)]
-struct State {
-    prio: Count,
-    state: Vec<Count>,
-}
-
-impl State {
-    fn unpress_button(&self, button: Button) -> Option<Self> {
-        let mut new_state = self.state.clone();
-        for i in button.iter_set() {
-            if new_state[i as usize] == 0 {
-                return None;
-            }
-            new_state[i as usize] -= 1;
-        }
-        Some(State {
-            prio: new_state.iter().sum(),
-            state: new_state,
-        })
-    }
-}
-
-impl Ord for State {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.prio.cmp(&other.prio)
-    }
-}
-
-impl Hash for State {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.state.hash(state);
-    }
-}
+type State = Vec<Count>;
 
 /*
  * for machine i, we can collect the set of buttons that together must be pressed at least n times
@@ -71,54 +34,26 @@ fn compute_optimum(target: State, buttons: Vec<Button>) -> usize {
     // minimize total button presses
     let objective: Expression = p.iter().sum();
     let mut model = problem.minimise(objective).using(scip);
-    for i_machine in 0..target.state.len() {
-        target.state[i_machine];
+    for (i_machine, &machine_count) in target.iter().enumerate() {
         model = model.with(constraint!(
-            p.iter().enumerate().filter_map(|(i_button, v)| {
-                if buttons[i_button].get_bit(i_machine as u16) > 0 {
-                    Some(v)
-                } else { None }
-            }).sum::<Expression>() == target.state[i_machine]
+            p.iter()
+                .enumerate()
+                .filter_map(|(i_button, v)| {
+                    if buttons[i_button].get_bit(i_machine as u16) > 0 {
+                        Some(v)
+                    } else {
+                        None
+                    }
+                })
+                .sum::<Expression>()
+                == machine_count
         ));
     }
     let solution = model.solve().unwrap();
     let presses = solution.eval(p.iter().sum::<Expression>());
     #[cfg(debug_assertions)]
     println!("presses = {}", presses);
-    return presses.round() as usize;
-
-    // let mut optimums: HashSet<State> = HashSet::with_capacity(1024);
-    // let mut heap: HashSet<State> = HashSet::with_capacity(100);
-    // let mut new_heap: HashSet<State> = heap.clone();
-    // heap.insert(target.clone());
-    // for press in 0.. {
-    //     let mut best_prio = target.prio;
-    //     #[cfg(debug_assertions)]
-    //     println!("press: {}", press);
-    //     for prev_state in heap.drain() {
-    //         #[cfg(debug_assertions)]
-    //         println!("{:?}", prev_state);
-    //         if prev_state.prio == 0 {
-    //             println!("{:?} {}", target, press);
-    //             return press;
-    //         }
-    //         buttons.iter().for_each(|&b| {
-    //             if let Some(new_state) = prev_state.unpress_button(b) {
-    //                 best_prio = best_prio.min(new_state.prio);
-    //                 if !optimums.contains(&new_state) {
-    //                     optimums.insert(new_state.clone());
-    //                     new_heap.insert(new_state);
-    //                 }
-    //             }
-    //         });
-    //     }
-    //     (heap, new_heap) = (new_heap, heap);
-    //     heap.retain(|s| s.prio <= best_prio + buttons.len() as u16 * 3);
-    //     if heap.is_empty() {
-    //         panic!("no solution found! {:?}", target)
-    //     }
-    // }
-    usize::MAX
+    presses.round() as usize
 }
 
 pub fn get_result(input: &[u8]) -> usize {
@@ -132,10 +67,7 @@ pub fn get_result(input: &[u8]) -> usize {
             let mut buttons = iter.collect::<Vec<_>>();
             let target: Vec<Count> = {
                 let j = buttons.pop().unwrap();
-                j[1..j.len() - 1]
-                    .split(|&c| c == b',')
-                    .map(|num| parse(num))
-                    .collect()
+                j[1..j.len() - 1].split(|&c| c == b',').map(parse).collect()
             };
             let buttons: Vec<Button> = {
                 buttons
@@ -152,13 +84,7 @@ pub fn get_result(input: &[u8]) -> usize {
             #[cfg(debug_assertions)]
             println!("{:?}, {:?}", target, buttons);
 
-            compute_optimum(
-                State {
-                    prio: target.iter().sum(),
-                    state: target,
-                },
-                buttons,
-            )
+            compute_optimum(target, buttons)
         })
         .sum()
 }
