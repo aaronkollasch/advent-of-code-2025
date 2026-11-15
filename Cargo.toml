@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+good_lp = { version = "1.15.3", features = ["scip", "scip_bundled"] }
 hashbrown = "0.16.1"
 itertools = "0.14.0"
 num = "0.4.3"
@@ -105,3 +106,11 @@ path = "src/bin/days/day09a.rs"
 [[bin]]
 name = "day09b"
 path = "src/bin/days/day09b.rs"
+
+[[bin]]
+name = "day10a"
+path = "src/bin/days/day10a.rs"
+
+[[bin]]
+name = "day10b"
+path = "src/bin/days/day10b.rs"
