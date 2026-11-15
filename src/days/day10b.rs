@@ -1,7 +1,9 @@
 use good_lp::{
-    Expression, ProblemVariables, Solution, SolverModel, Variable, constraint, default_solver,
-    variable,
+    Expression, ProblemVariables, Solution, SolverModel, Variable, constraint, scip,
+    solvers::scip::ScipHeuristics, variable,
 };
+use itertools::Itertools;
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 use crate::common::{BitVec, parse};
 
@@ -34,7 +36,10 @@ fn compute_optimum(target: State, buttons: Vec<Button>) -> usize {
     let p: Vec<Variable> = problem.add_vector(variable().integer().min(0), buttons.len());
     // minimize total button presses
     let objective: Expression = p.iter().sum();
-    let mut model = problem.minimise(objective).using(default_solver);
+    let mut model = problem
+        .minimise(&objective)
+        .using(scip)
+        .set_heuristics(ScipHeuristics::Fast);
     for (i_machine, &machine_count) in target.iter().enumerate() {
         model = model.with(constraint!(
             p.iter()
@@ -51,14 +56,17 @@ fn compute_optimum(target: State, buttons: Vec<Button>) -> usize {
         ));
     }
     let solution = model.solve().unwrap();
-    let presses = solution.eval(p.iter().sum::<Expression>());
+    let presses = solution.eval(&objective);
     #[cfg(debug_assertions)]
-    println!("presses = {}", presses);
+    println!(
+        "target: {:?}, buttons: {:?}, presses: {}",
+        target, buttons, presses
+    );
     presses.round() as usize
 }
 
 pub fn get_result(input: &[u8]) -> usize {
-    input
+    let problems = input
         .split(|&b| b == b'\n')
         .filter(|&l| !l.is_empty())
         .map(|l| {
@@ -82,11 +90,13 @@ pub fn get_result(input: &[u8]) -> usize {
                     })
                     .collect()
             };
-            #[cfg(debug_assertions)]
-            println!("{:?}, {:?}", target, buttons);
-
-            compute_optimum(target, buttons)
+            (target, buttons)
         })
+        .collect_vec();
+
+    problems
+        .into_par_iter()
+        .map(|(target, buttons)| compute_optimum(target, buttons))
         .sum()
 }
 
