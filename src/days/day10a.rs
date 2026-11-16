@@ -38,13 +38,14 @@ pub fn get_result(input: &[u8]) -> usize {
             let mut buttons = iter.collect::<Vec<_>>();
             let _joltage = buttons.pop().unwrap();
             let buttons: Vec<State> = {
-                buttons.iter().map(|&b| {
-                    b[1..b.len() - 1]
-                        .split(|&c| c == b',')
-                        .fold(0, |acc, num| {
-                            acc | (1 << parse_u8(num))
-                        })
-                }).collect()
+                buttons
+                    .iter()
+                    .map(|&b| {
+                        b[1..b.len() - 1]
+                            .split(|&c| c == b',')
+                            .fold(0, |acc, num| acc | (1 << parse_u8(num)))
+                    })
+                    .collect()
             };
             #[cfg(debug_assertions)]
             println!("{:b} ({}), {:?}", target, target, buttons);
@@ -55,10 +56,7 @@ pub fn get_result(input: &[u8]) -> usize {
 }
 
 pub fn main() {
-    print!(
-        "{} ",
-        get_result(include_bytes!("../../inputs/day10.txt"))
-    );
+    print!("{} ", get_result(include_bytes!("../../inputs/day10.txt")));
 }
 
 #[cfg(test)]
