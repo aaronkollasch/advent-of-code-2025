@@ -19,10 +19,10 @@ struct Node {
 type NodeHashSet = HashSet<NodeIndex, BuildHasherDefault<NoHashHasher<NodeIndex>>>;
 type NodeHashMap = HashMap<NodeIndex, Node, BuildHasherDefault<NoHashHasher<NodeIndex>>>;
 
-const SVR: NodeIndex = NodeIndex::from_le_bytes([b's', b'v', b'r', b' ']);
-const FFT: NodeIndex = NodeIndex::from_le_bytes([b'f', b'f', b't', b' ']);
-const DAC: NodeIndex = NodeIndex::from_le_bytes([b'd', b'a', b'c', b' ']);
-const OUT: NodeIndex = NodeIndex::from_le_bytes([b'o', b'u', b't', b' ']);
+const SVR: NodeIndex = NodeIndex::from_le_bytes(*b"svr ");
+const FFT: NodeIndex = NodeIndex::from_le_bytes(*b"fft ");
+const DAC: NodeIndex = NodeIndex::from_le_bytes(*b"dac ");
+const OUT: NodeIndex = NodeIndex::from_le_bytes(*b"out ");
 
 fn count_paths(start_node: NodeIndex, end_node: NodeIndex, map: &mut NodeHashMap) -> usize {
     map.iter_mut().for_each(|(_k, v)| {
@@ -109,7 +109,7 @@ pub fn get_result(input: &[u8]) -> usize {
             let chunks = l[5..].as_chunks::<4>();
             let mut output_nodes = chunks
                 .0
-                .into_iter()
+                .iter()
                 .map(|&c| NodeIndex::from_le_bytes(c))
                 .collect_vec();
             output_nodes.push({

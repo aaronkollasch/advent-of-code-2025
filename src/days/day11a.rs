@@ -19,8 +19,8 @@ struct Node {
 type NodeHashSet = HashSet<NodeIndex, BuildHasherDefault<NoHashHasher<NodeIndex>>>;
 type NodeHashMap = HashMap<NodeIndex, Node, BuildHasherDefault<NoHashHasher<NodeIndex>>>;
 
-const YOU: NodeIndex = NodeIndex::from_le_bytes([b'y', b'o', b'u', b' ']);
-const OUT: NodeIndex = NodeIndex::from_le_bytes([b'o', b'u', b't', b' ']);
+const YOU: NodeIndex = NodeIndex::from_le_bytes(*b"you ");
+const OUT: NodeIndex = NodeIndex::from_le_bytes(*b"out ");
 
 /*
  * aaa -> you -> bbb -> ddd -> ggg -> out
@@ -131,7 +131,7 @@ pub fn get_result(input: &[u8]) -> usize {
             let chunks = l[5..].as_chunks::<4>();
             let mut output_nodes = chunks
                 .0
-                .into_iter()
+                .iter()
                 .map(|&c| NodeIndex::from_le_bytes(c))
                 .collect_vec();
             output_nodes.push({
