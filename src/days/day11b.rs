@@ -3,7 +3,6 @@ use std::{
     hash::BuildHasherDefault,
 };
 
-// use crate::common::parse;
 use itertools::Itertools;
 use nohash::NoHashHasher;
 
@@ -12,6 +11,7 @@ type NodeIndex = u32;
 #[derive(Debug)]
 struct Node {
     outputs: Vec<NodeIndex>,
+    // TODO: don't store path count for every node
     path_count: usize,
     packet_count: usize,
 }
@@ -23,28 +23,6 @@ const SVR: NodeIndex = NodeIndex::from_le_bytes([b's', b'v', b'r', b' ']);
 const FFT: NodeIndex = NodeIndex::from_le_bytes([b'f', b'f', b't', b' ']);
 const DAC: NodeIndex = NodeIndex::from_le_bytes([b'd', b'a', b'c', b' ']);
 const OUT: NodeIndex = NodeIndex::from_le_bytes([b'o', b'u', b't', b' ']);
-
-/*
- * aaa -> you -> bbb -> ddd -> ggg -> out
- *     |      \      X
- *     |       > ccc -> eee -> out
- *     |      |      \
- *     |      |       > fff -> out
- *     \      /      /
- *      > hhh --------> iii -> out
- *
- *  paths from out -> out: 1
- *  paths from eee -> out: 1
- *  paths from fff -> out: 1
- *  paths from ggg -> out: 1
- *  paths from iii -> out: 1
- *  paths from ddd -> out: 1
- *  paths from ccc -> out: 3 (ddd + eee + fff)
- *  paths from hhh -> out: 1
- *  paths from ccc -> out: 2 (ddd + eee)
- *  paths from you -> out: 5 (bbb + ccc)
- *  paths from aaa -> out: 6 (you + hhh)
- */
 
 fn count_paths(start_node: NodeIndex, end_node: NodeIndex, map: &mut NodeHashMap) -> usize {
     map.iter_mut().for_each(|(_k, v)| {
@@ -116,8 +94,7 @@ fn count_paths(start_node: NodeIndex, end_node: NodeIndex, map: &mut NodeHashMap
 }
 
 pub fn get_result(input: &[u8]) -> usize {
-    // #[cfg(debug_assertions)]
-    // println!("{} {}", YOU, OUT);
+    // TODO: remove one of these
     let mut forward_map: NodeHashMap =
         HashMap::with_capacity_and_hasher(1024, BuildHasherDefault::default());
     let mut reverse_map: NodeHashMap =
@@ -138,10 +115,8 @@ pub fn get_result(input: &[u8]) -> usize {
             output_nodes.push({
                 let mut last_node = [b' '; 4];
                 last_node[0..3].copy_from_slice(chunks.1);
-                u32::from_le_bytes(last_node)
+                NodeIndex::from_le_bytes(last_node)
             });
-            // #[cfg(debug_assertions)]
-            // println!("{:?}: {:?}", current_node, output_nodes);
             output_nodes.iter().for_each(|n| {
                 if let Some(node) = reverse_map.get_mut(n) {
                     node.outputs.push(current_node);
