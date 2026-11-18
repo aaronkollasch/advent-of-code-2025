@@ -11,8 +11,6 @@ type NodeIndex = u32;
 #[derive(Debug)]
 struct Node {
     outputs: Vec<NodeIndex>,
-    // TODO: don't store path count for every node
-    path_count: usize,
     packet_count: usize,
 }
 
@@ -26,10 +24,8 @@ const OUT: NodeIndex = NodeIndex::from_le_bytes(*b"out ");
 
 fn count_paths(start_node: NodeIndex, end_node: NodeIndex, map: &mut NodeHashMap) -> usize {
     map.iter_mut().for_each(|(_k, v)| {
-        v.path_count = 0;
         v.packet_count = 0;
     });
-    map.get_mut(&start_node).unwrap().path_count = 1;
     map.get_mut(&start_node).unwrap().packet_count = 1;
 
     let mut current_nodes: NodeHashSet =
@@ -56,7 +52,6 @@ fn count_paths(start_node: NodeIndex, end_node: NodeIndex, map: &mut NodeHashMap
             outputs.iter().for_each(|o| {
                 if let Some(o_node) = map.get_mut(o) {
                     o_node.packet_count += packet_counts[n];
-                    o_node.path_count += packet_counts[n];
                     next_nodes.insert(*o);
                 }
                 if *o == end_node {
@@ -125,7 +120,6 @@ pub fn get_result(input: &[u8]) -> usize {
                         *n,
                         Node {
                             outputs: vec![current_node],
-                            path_count: 0,
                             packet_count: 0,
                         },
                     );
@@ -135,7 +129,6 @@ pub fn get_result(input: &[u8]) -> usize {
                 current_node,
                 Node {
                     outputs: output_nodes,
-                    path_count: 0,
                     packet_count: 0,
                 },
             );
