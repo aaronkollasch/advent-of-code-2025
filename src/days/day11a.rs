@@ -43,9 +43,6 @@ const OUT: NodeIndex = NodeIndex::from_le_bytes(*b"out ");
  */
 
 fn count_paths(start_node: NodeIndex, end_node: NodeIndex, map: &mut NodeHashMap) -> usize {
-    map.iter_mut().for_each(|(_k, v)| {
-        v.packet_count = 0;
-    });
     map.get_mut(&start_node).unwrap().packet_count = 1;
 
     let mut current_nodes: NodeHashSet =
