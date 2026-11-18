@@ -7,6 +7,7 @@ edition = "2024"
 good_lp = { version = "1.15.3", features = ["scip", "scip_bundled"] }
 hashbrown = "0.16.1"
 itertools = "0.14.0"
+nohash = "0.2.0"
 num = "0.4.3"
 ordered-float = "5.1.0"
 primitive-types = "0.14.0"
@@ -114,3 +115,11 @@ path = "src/bin/days/day10a.rs"
 [[bin]]
 name = "day10b"
 path = "src/bin/days/day10b.rs"
+
+[[bin]]
+name = "day11a"
+path = "src/bin/days/day11a.rs"
+
+[[bin]]
+name = "day11b"
+path = "src/bin/days/day11b.rs"

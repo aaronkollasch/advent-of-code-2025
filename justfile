@@ -1,3 +1,5 @@
+export LIBRARY_PATH := "/opt/homebrew/lib"
+
 run DAY:
     cargo +nightly run --bin {{DAY}}
 
