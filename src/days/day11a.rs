@@ -11,7 +11,6 @@ type NodeIndex = u32;
 #[derive(Debug)]
 struct Node {
     outputs: Vec<NodeIndex>,
-    // TODO: don't store path count for every node
     packet_count: usize,
 }
 
@@ -59,16 +58,13 @@ fn count_paths(start_node: NodeIndex, end_node: NodeIndex, map: &mut NodeHashMap
     let mut packet_counts: HashMap<NodeIndex, usize, BuildHasherDefault<NoHashHasher<NodeIndex>>> =
         HashMap::with_capacity_and_hasher(1024, BuildHasherDefault::default());
     while !current_nodes.is_empty() {
-        // step 1: collect packet counts from current nodes
-        // step 2: clear packet counts for current notdes
         current_nodes.iter().for_each(|n| {
+            // step 1: collect packet counts from current nodes
             let node = map.get_mut(n).unwrap();
             packet_counts.insert(*n, node.packet_count);
+            // step 2: clear packet counts for current nodes
             node.packet_count = 0;
-        });
-        // step 3: propagate total output paths to next nodes
-        // TODO: combine with steps 1 and 2
-        current_nodes.iter().for_each(|n| {
+            // step 3: propagate total output paths to next nodes
             let outputs = map[n].outputs.clone();
             outputs.iter().for_each(|o| {
                 if let Some(o_node) = map.get_mut(o) {
