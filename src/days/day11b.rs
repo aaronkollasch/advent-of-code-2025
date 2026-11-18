@@ -35,52 +35,25 @@ fn count_paths(start_node: NodeIndex, end_node: NodeIndex, map: &mut NodeHashMap
     current_nodes.insert(start_node);
 
     let mut path_count = 0;
-    let mut packet_counts: HashMap<NodeIndex, usize, BuildHasherDefault<NoHashHasher<NodeIndex>>> =
-        HashMap::with_capacity_and_hasher(1024, BuildHasherDefault::default());
     while !current_nodes.is_empty() {
-        current_nodes.iter().for_each(|n| {
-            // step 1: collect packet counts from current nodes
-            let node = map.get_mut(n).unwrap();
-            packet_counts.insert(*n, node.packet_count);
-            // step 2: clear packet counts for current nodes
-            node.packet_count = 0;
-            // step 3: propagate total output paths to next nodes
-            let outputs = map[n].outputs.clone();
-            outputs.iter().for_each(|o| {
-                if let Some(o_node) = map.get_mut(o) {
-                    o_node.packet_count += packet_counts[n];
+        current_nodes.drain().for_each(|n| unsafe {
+            let node: *mut Node = map.get_mut(&n).unwrap() as *mut _;
+            // step 1: collect packet count from current node
+            let packet_count = (*node).packet_count;
+            // step 2: clear packet count for current node
+            (*node).packet_count = 0;
+            // step 3: propagate packet count to output nodes
+            (*node).outputs.iter().for_each(|o| {
+                if let Some(node) = map.get_mut(o) {
+                    node.packet_count += packet_count;
                     next_nodes.insert(*o);
                 }
-                if *o == end_node {
-                    path_count += packet_counts[n];
+                if o == &end_node {
+                    path_count += packet_count;
                 }
             });
         });
-        // step 4: clear nodes and packet counts
         (current_nodes, next_nodes) = (next_nodes, current_nodes);
-        next_nodes.clear();
-        packet_counts.clear();
-
-        // current_nodes.drain().for_each(|n| unsafe {
-        //     let node: *mut Node = reverse_map.get_mut(&n).unwrap() as *mut _;
-        //     let outputs = &(*node).outputs;
-        //     next_nodes.extend(outputs.iter().filter(|o| reverse_map.contains_key(o)));
-        //     let path_count = (*node).path_count;
-        //     outputs.iter().for_each(|o| {
-        //         if let Some(node) = reverse_map.get_mut(o) {
-        //             #[cfg(debug_assertions)]
-        //             println!("adding {} from node {} to node {}", path_count, n, o);
-        //             node.path_count += path_count;
-        //         }
-        //         if o == &YOU {
-        //             you_path_count += path_count;
-        //         }
-        //     });
-        //     (*node).path_count = 0;
-        // });
-        // (current_nodes, next_nodes) = (next_nodes, current_nodes);
-        // next_nodes.clear();
-        // packet_counts.clear();
     }
     path_count
 }
