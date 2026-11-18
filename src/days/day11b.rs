@@ -104,12 +104,20 @@ pub fn get_result(input: &[u8]) -> usize {
             );
         });
 
-    let svr_fft = count_paths(SVR, FFT, &mut forward_map);
-    let svr_dac = count_paths(SVR, DAC, &mut forward_map);
-    let fft_dac = count_paths(FFT, DAC, &mut forward_map);
-    let dac_fft = count_paths(DAC, FFT, &mut forward_map);
-    let dac_out = count_paths(DAC, OUT, &mut forward_map);
-    let fft_out = count_paths(FFT, OUT, &mut forward_map);
+    // let svr_fft = count_paths(SVR, FFT, &mut forward_map);
+    // let svr_dac = count_paths(SVR, DAC, &mut forward_map);
+    // let fft_dac = count_paths(FFT, DAC, &mut forward_map);
+    // let dac_fft = count_paths(DAC, FFT, &mut forward_map);
+    // let dac_out = count_paths(DAC, OUT, &mut forward_map);
+    // let fft_out = count_paths(FFT, OUT, &mut forward_map);
+    // // TODO: alternate: calculate svr -> out minus svr -> out excluding fft & dac
+    // svr_fft * fft_dac * dac_out + svr_dac * dac_fft * fft_out
+    let svr_fft = count_paths(FFT, SVR, &mut reverse_map);
+    let svr_dac = count_paths(DAC, SVR, &mut reverse_map);
+    let fft_dac = count_paths(DAC, FFT, &mut reverse_map);
+    let dac_fft = count_paths(FFT, DAC, &mut reverse_map);
+    let dac_out = count_paths(OUT, DAC, &mut reverse_map);
+    let fft_out = count_paths(OUT, FFT, &mut reverse_map);
     // TODO: alternate: calculate svr -> out minus svr -> out excluding fft & dac
     svr_fft * fft_dac * dac_out + svr_dac * dac_fft * fft_out
 }
