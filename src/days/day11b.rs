@@ -12,6 +12,9 @@ type NodeIndex = u32;
 struct Node {
     outputs: Vec<NodeIndex>,
     packet_count: usize,
+    fft_packet_count: usize,
+    dac_packet_count: usize,
+    fft_dac_packet_count: usize,
 }
 
 type NodeHashSet = HashSet<NodeIndex, BuildHasherDefault<NoHashHasher<NodeIndex>>>;
@@ -23,9 +26,6 @@ const DAC: NodeIndex = NodeIndex::from_le_bytes(*b"dac ");
 const OUT: NodeIndex = NodeIndex::from_le_bytes(*b"out ");
 
 fn count_paths(start_node: NodeIndex, end_node: NodeIndex, map: &mut NodeHashMap) -> usize {
-    map.iter_mut().for_each(|(_k, v)| {
-        v.packet_count = 0;
-    });
     map.get_mut(&start_node).unwrap().packet_count = 1;
 
     let mut current_nodes: NodeHashSet =
@@ -40,16 +40,33 @@ fn count_paths(start_node: NodeIndex, end_node: NodeIndex, map: &mut NodeHashMap
             let node: *mut Node = map.get_mut(&n).unwrap() as *mut _;
             // step 1: collect packet count from current node
             let packet_count = (*node).packet_count;
+            let mut fft_packet_count = (*node).fft_packet_count;
+            let mut dac_packet_count = (*node).dac_packet_count;
+            let mut fft_dac_packet_count = (*node).fft_dac_packet_count;
+            // step 1.5: update fft and dac packet counts
+            if n == FFT {
+                fft_packet_count = packet_count;
+                fft_dac_packet_count = dac_packet_count;
+            } else if n == DAC {
+                dac_packet_count = packet_count;
+                fft_dac_packet_count = fft_packet_count;
+            }
             // step 2: clear packet count for current node
             (*node).packet_count = 0;
+            (*node).fft_packet_count = 0;
+            (*node).dac_packet_count = 0;
+            (*node).fft_dac_packet_count = 0;
             // step 3: propagate packet count to output nodes
             (*node).outputs.iter().for_each(|o| {
                 if let Some(node) = map.get_mut(o) {
                     node.packet_count += packet_count;
+                    node.fft_packet_count += fft_packet_count;
+                    node.dac_packet_count += dac_packet_count;
+                    node.fft_dac_packet_count += fft_dac_packet_count;
                     next_nodes.insert(*o);
                 }
                 if o == &end_node {
-                    path_count += packet_count;
+                    path_count += fft_dac_packet_count;
                 }
             });
         });
@@ -59,9 +76,6 @@ fn count_paths(start_node: NodeIndex, end_node: NodeIndex, map: &mut NodeHashMap
 }
 
 pub fn get_result(input: &[u8]) -> usize {
-    // TODO: remove one of these
-    let mut forward_map: NodeHashMap =
-        HashMap::with_capacity_and_hasher(1024, BuildHasherDefault::default());
     let mut reverse_map: NodeHashMap =
         HashMap::with_capacity_and_hasher(1024, BuildHasherDefault::default());
     input
@@ -91,35 +105,16 @@ pub fn get_result(input: &[u8]) -> usize {
                         Node {
                             outputs: vec![current_node],
                             packet_count: 0,
+                            fft_packet_count: 0,
+                            dac_packet_count: 0,
+                            fft_dac_packet_count: 0,
                         },
                     );
                 }
             });
-            forward_map.insert(
-                current_node,
-                Node {
-                    outputs: output_nodes,
-                    packet_count: 0,
-                },
-            );
         });
 
-    // let svr_fft = count_paths(SVR, FFT, &mut forward_map);
-    // let svr_dac = count_paths(SVR, DAC, &mut forward_map);
-    // let fft_dac = count_paths(FFT, DAC, &mut forward_map);
-    // let dac_fft = count_paths(DAC, FFT, &mut forward_map);
-    // let dac_out = count_paths(DAC, OUT, &mut forward_map);
-    // let fft_out = count_paths(FFT, OUT, &mut forward_map);
-    // // TODO: alternate: calculate svr -> out minus svr -> out excluding fft & dac
-    // svr_fft * fft_dac * dac_out + svr_dac * dac_fft * fft_out
-    let svr_fft = count_paths(FFT, SVR, &mut reverse_map);
-    let svr_dac = count_paths(DAC, SVR, &mut reverse_map);
-    let fft_dac = count_paths(DAC, FFT, &mut reverse_map);
-    let dac_fft = count_paths(FFT, DAC, &mut reverse_map);
-    let dac_out = count_paths(OUT, DAC, &mut reverse_map);
-    let fft_out = count_paths(OUT, FFT, &mut reverse_map);
-    // TODO: alternate: calculate svr -> out minus svr -> out excluding fft & dac
-    svr_fft * fft_dac * dac_out + svr_dac * dac_fft * fft_out
+    count_paths(OUT, SVR, &mut reverse_map)
 }
 
 pub fn main() {
