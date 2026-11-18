@@ -79,10 +79,7 @@ fn count_paths(start_node: NodeIndex, end_node: NodeIndex, map: &mut NodeHashMap
 }
 
 pub fn get_result(input: &[u8]) -> usize {
-    // TODO: remove one of these
     let mut forward_map: NodeHashMap =
-        HashMap::with_capacity_and_hasher(1024, BuildHasherDefault::default());
-    let mut reverse_map: NodeHashMap =
         HashMap::with_capacity_and_hasher(1024, BuildHasherDefault::default());
     input
         .split(|&b| b == b'\n')
@@ -102,19 +99,6 @@ pub fn get_result(input: &[u8]) -> usize {
                 last_node[0..3].copy_from_slice(chunks.1);
                 NodeIndex::from_le_bytes(last_node)
             });
-            output_nodes.iter().for_each(|n| {
-                if let Some(node) = reverse_map.get_mut(n) {
-                    node.outputs.push(current_node);
-                } else {
-                    reverse_map.insert(
-                        *n,
-                        Node {
-                            outputs: vec![current_node],
-                            packet_count: 0,
-                        },
-                    );
-                }
-            });
             forward_map.insert(
                 current_node,
                 Node {
@@ -124,7 +108,7 @@ pub fn get_result(input: &[u8]) -> usize {
             );
         });
 
-    count_paths(OUT, YOU, &mut reverse_map)
+    count_paths(YOU, OUT, &mut forward_map)
 }
 
 pub fn main() {
