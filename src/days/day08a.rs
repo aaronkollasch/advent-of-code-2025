@@ -92,7 +92,7 @@ pub fn get_result(input: &[u8], num_connections: usize) -> usize {
                 println!("add to cluster {}: {:?}", cluster, box2);
                 circuit_to_cluster[box2] = cluster;
                 let last_circuit_pointer = cluster_ends[cluster as usize];
-                circuit_to_next_circuit[last_circuit_pointer as usize] = box2 as Circuit;
+                circuit_to_next_circuit[last_circuit_pointer] = box2 as Circuit;
                 cluster_ends[cluster as usize] = box2 as Circuit;
                 cluster_sizes[cluster as usize] += 1;
             }
@@ -102,7 +102,7 @@ pub fn get_result(input: &[u8], num_connections: usize) -> usize {
                 println!("add to cluster {}: {:?}", cluster, box2);
                 circuit_to_cluster[box1] = cluster;
                 let last_circuit_pointer = cluster_ends[cluster as usize];
-                circuit_to_next_circuit[last_circuit_pointer as usize] = box1 as Circuit;
+                circuit_to_next_circuit[last_circuit_pointer] = box1 as Circuit;
                 cluster_ends[cluster as usize] = box1 as Circuit;
                 cluster_sizes[cluster as usize] += 1;
             }
@@ -120,10 +120,10 @@ pub fn get_result(input: &[u8], num_connections: usize) -> usize {
                 }
                 let mut cluster_pointer = cluster_starts[old_cluster as usize];
                 while cluster_pointer != NULL_CIRCUIT {
-                    circuit_to_cluster[cluster_pointer as usize] = new_cluster;
-                    cluster_pointer = circuit_to_next_circuit[cluster_pointer as usize];
+                    circuit_to_cluster[cluster_pointer] = new_cluster;
+                    cluster_pointer = circuit_to_next_circuit[cluster_pointer];
                 }
-                circuit_to_next_circuit[cluster_ends[new_cluster as usize] as usize] =
+                circuit_to_next_circuit[cluster_ends[new_cluster as usize]] =
                     cluster_starts[old_cluster as usize];
                 cluster_ends[new_cluster as usize] = cluster_ends[old_cluster as usize];
                 cluster_sizes[new_cluster as usize] += cluster_sizes[old_cluster as usize];

@@ -65,7 +65,7 @@ fn count_paths(start_node: NodeIndex, end_node: NodeIndex, map: &mut NodeHashMap
                     node.fft_dac_packet_count += fft_dac_packet_count;
                     next_nodes.insert(*o);
                 }
-                if o == &end_node {
+                if *o == end_node {
                     path_count += fft_dac_packet_count;
                 }
             });

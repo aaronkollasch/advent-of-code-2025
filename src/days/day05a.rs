@@ -17,7 +17,7 @@ pub fn get_result(input: &[u8]) -> usize {
     ingredient_ids
         .split(|b| *b == b'\n')
         .filter(|&l| !l.is_empty())
-        .map(|l| parse::<usize>(l))
+        .map(parse::<usize>)
         .filter(|id| fresh_ranges.iter().any(|&r| r.contains(id)))
         .count()
 }

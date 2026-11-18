@@ -14,7 +14,7 @@ pub fn get_result(input: &[u8]) -> usize {
         .enumerate()
         .map(|(i, &op)| (i, op))
         .filter(|&(_, op)| op != b' ')
-        .chain([(operations.len() + 1, b' ')].into_iter())
+        .chain([(operations.len() + 1, b' ')])
         .tuple_windows::<(_, _)>()
         .map(|((i, op), (next_i, _))| {
             let first_column = i;

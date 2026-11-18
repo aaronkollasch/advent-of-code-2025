@@ -7,7 +7,7 @@ fn factorize_target(target: State, buttons: Vec<State>) -> usize {
     for comb_depth in 1..=buttons.len() {
         if let Some(_m) = buttons.iter().combinations(comb_depth).find(|comb| {
             let mut comb_result = target;
-            comb.iter().for_each(|&&b| comb_result ^= b);
+            comb.iter().for_each(|&b| comb_result ^= b);
             #[cfg(debug_assertions)]
             if comb_result == 0 {
                 println!("{} {}: {:?} = {}", target, comb_depth, comb, comb_result);

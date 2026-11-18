@@ -17,7 +17,7 @@ pub fn get_result(input: &[u8]) -> usize {
         println!("start pos: {}", first_pos);
     }
     let mut state = [0usize; NUM_COLUMNS];
-    let mut new_state = state.clone();
+    let mut new_state = state;
     state[first_pos] = 1;
     for (i, line) in lines.enumerate() {
         #[cfg(debug_assertions)]

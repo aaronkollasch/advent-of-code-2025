@@ -32,15 +32,13 @@ pub fn get_result(input: &[u8]) -> Number {
         .iter()
         .fold((0usize, 0usize), |acc, &pos| (acc.0 + pos.0, acc.1 + pos.1));
     let center = (center.0 / red_tiles.len(), center.1 / red_tiles.len());
-    // let min_distance = (center.0 + center.1) * 3 / 5;
     red_tiles.sort_unstable_by_key(|&pos| pos.0.abs_diff(center.0) + pos.1.abs_diff(center.1));
     #[cfg(debug_assertions)]
     println!("approximate center: {:?}", center);
     let mut largest_area = 0;
     for i in red_tiles.len().saturating_sub(NUM_TOP_PAIRS)..red_tiles.len() - 1 {
         let pos1 = red_tiles[i];
-        for j in i + 1..red_tiles.len() {
-            let pos2 = red_tiles[j];
+        for &pos2 in red_tiles.iter().skip(i+1) {
             let area = area(pos1, pos2);
             #[cfg(debug_assertions)]
             println!("area {} for {:?} - {:?}", area, pos1, pos2);
