@@ -82,10 +82,10 @@ impl Map {
             // edge_positions.insert((width - 1, i));
         });
         Self {
-            width: width,
-            length: length,
+            width,
+            length,
             contents: [MAP_EMPTY; MAP_SIZE],
-            edge_positions: edge_positions,
+            edge_positions,
         }
     }
 
@@ -168,7 +168,7 @@ impl Map {
                 .iter()
                 .enumerate()
                 .for_each(|(i_present, new_present)| {
-                    present = new_present.clone();
+                    present = *new_present;
                     for i_transform in 0..8 {
                         let edge_coverage = self.check_present(present, x, y);
                         if edge_coverage > best_present_edge_coverage {
@@ -203,7 +203,7 @@ pub fn get_result(input: &[u8]) -> usize {
             if i_line == 0 {
                 return;
             }
-            line.into_iter().enumerate().for_each(|(j, &c)| {
+            line.iter().enumerate().for_each(|(j, &c)| {
                 presents[i_shape][i_line - 1][j] = match c {
                     MAP_FILL => MAP_FILL,
                     _ => MAP_EMPTY,
