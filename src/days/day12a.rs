@@ -4,7 +4,7 @@ use crate::common::parse;
 use hashbrown::HashSet;
 use itertools::Itertools;
 use num::Integer;
-use rayon::iter::{ParallelIterator, IntoParallelIterator};
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 type Present = [[u8; 3]; 3];
 
@@ -53,13 +53,16 @@ struct Map {
 impl fmt::Debug for Map {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let _ = writeln!(f, "Map {}x{} {{", self.width, self.length);
-        for row in 0..self.length {
-            for col in 0..self.width {
-                let val = match (self.get_val((col, row)), self.edge_positions.contains(&(col, row))) {
+        for row in 0..=self.length {
+            for col in 0..=self.width {
+                let val = match (
+                    self.get_val((col, row)),
+                    self.edge_positions.contains(&(col, row)),
+                ) {
                     (MAP_FILL, false) => MAP_FILL,
                     (MAP_EMPTY, true) => b'-',
                     (MAP_EMPTY, false) => MAP_EMPTY,
-                    _ => b'?'
+                    _ => b'?',
                 };
                 let _ = write!(f, "{}", val as char);
             }
@@ -75,11 +78,9 @@ impl Map {
         let mut edge_positions = HashSet::new();
         (0..3).for_each(|i| {
             edge_positions.insert((i, 0));
-            // edge_positions.insert((i, length - 1));
         });
         (0..3).for_each(|i| {
             edge_positions.insert((0, i));
-            // edge_positions.insert((width - 1, i));
         });
         Self {
             width,
@@ -98,7 +99,6 @@ impl Map {
     pub fn set_val(&mut self, pos: (u8, u8), val: u8) {
         self.contents[pos.0 as usize * MAX_WIDTH + pos.1 as usize] = val;
     }
-
 
     fn check_present(&self, present: Present, x: u8, y: u8) -> u8 {
         // TODO: weight positions by number of neighbors
@@ -144,7 +144,9 @@ impl Map {
             for i in 0..3 {
                 for j in 0..3 {
                     let (x_i, y_i) = (new_x + i, new_y + j);
-                    if present[i as usize][j as usize] == MAP_FILL && self.get_val((x_i, y_i)) != MAP_FILL {
+                    if present[i as usize][j as usize] == MAP_FILL
+                        && self.get_val((x_i, y_i)) != MAP_FILL
+                    {
                         self.edge_positions.insert((x_i, y_i));
                     }
                 }
@@ -275,10 +277,7 @@ pub fn get_result(input: &[u8]) -> usize {
 }
 
 pub fn main() {
-    print!(
-        "{} ",
-        get_result(include_bytes!("../../inputs/day12.txt"))
-    );
+    print!("{} ", get_result(include_bytes!("../../inputs/day12.txt")));
 }
 
 #[cfg(test)]
