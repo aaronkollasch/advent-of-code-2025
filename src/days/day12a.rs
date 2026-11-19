@@ -3,7 +3,7 @@ use std::fmt;
 use crate::common::parse;
 use hashbrown::HashSet;
 use itertools::Itertools;
-use num::{Integer, Saturating};
+use num::Integer;
 use rayon::iter::{ParallelIterator, IntoParallelIterator};
 
 type Present = [[u8; 3]; 3];
@@ -52,20 +52,20 @@ struct Map {
 
 impl fmt::Debug for Map {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "Map {}x{} {{", self.width, self.length);
+        let _ = writeln!(f, "Map {}x{} {{", self.width, self.length);
         for row in 0..self.length {
             for col in 0..self.width {
-                let mut val = match (self.get_val((col, row)), self.edge_positions.contains(&(col, row))) {
+                let val = match (self.get_val((col, row)), self.edge_positions.contains(&(col, row))) {
                     (MAP_FILL, false) => MAP_FILL,
                     (MAP_EMPTY, true) => b'-',
                     (MAP_EMPTY, false) => MAP_EMPTY,
                     _ => b'?'
                 };
-                write!(f, "{}", val as char);
+                let _ = write!(f, "{}", val as char);
             }
-            writeln!(f);
+            let _ = writeln!(f);
         }
-        writeln!(f, "}}");
+        let _ = writeln!(f, "}}");
         Ok(())
     }
 }
@@ -277,7 +277,7 @@ pub fn get_result(input: &[u8]) -> usize {
 pub fn main() {
     print!(
         "{} ",
-        get_result(include_bytes!("../../inputs/day12.example.txt"))
+        get_result(include_bytes!("../../inputs/day12.txt"))
     );
 }
 
