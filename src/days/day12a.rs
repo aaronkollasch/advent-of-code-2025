@@ -4,6 +4,7 @@ use crate::common::parse;
 use hashbrown::HashSet;
 use itertools::Itertools;
 use num::{Integer, Saturating};
+use rayon::iter::{ParallelIterator, IntoParallelIterator};
 
 type Present = [[u8; 3]; 3];
 
@@ -229,7 +230,7 @@ pub fn get_result(input: &[u8]) -> usize {
     });
 
     regions
-        .into_iter()
+        .into_par_iter()
         .map(|region| {
             let mut num_presents = region
                 .num_presents
