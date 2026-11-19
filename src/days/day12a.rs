@@ -53,8 +53,10 @@ struct Map {
 impl fmt::Debug for Map {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let _ = writeln!(f, "Map {}x{} {{", self.width, self.length);
-        for row in 0..=self.length {
-            for col in 0..=self.width {
+        let _ = writeln!(f, "{}", "|".repeat(self.width as usize + 2));
+        for row in 0..self.length {
+            let _ = write!(f, "{}", b'|' as char);
+            for col in 0..self.width {
                 let val = match (
                     self.get_val((col, row)),
                     self.edge_positions.contains(&(col, row)),
@@ -66,8 +68,10 @@ impl fmt::Debug for Map {
                 };
                 let _ = write!(f, "{}", val as char);
             }
+            let _ = write!(f, "{}", b'|' as char);
             let _ = writeln!(f);
         }
+        let _ = writeln!(f, "{}", "|".repeat(self.width as usize + 2));
         let _ = writeln!(f, "}}");
         Ok(())
     }
