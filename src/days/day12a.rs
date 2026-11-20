@@ -1,4 +1,5 @@
 use std::fmt;
+use std::iter::zip;
 
 use crate::common::parse;
 use hashbrown::HashSet;
@@ -235,9 +236,36 @@ pub fn get_result(input: &[u8]) -> usize {
         }
     });
 
+    let mut present_sizes: [u8; NUM_PRESENTS] = Default::default();
+    (0..NUM_PRESENTS).for_each(|i| {
+        present_sizes[i] = presents[i]
+            .iter()
+            .flatten()
+            .map(|&c| if c == MAP_FILL { 1 } else { 0 })
+            .sum()
+    });
+
     regions
         .into_par_iter()
         .map(|region| {
+            let num_squares = (region.width / 3) as usize * (region.length / 3) as usize;
+            if region
+                .num_presents
+                .iter()
+                .map(|&p| p as usize)
+                .sum::<usize>()
+                <= num_squares
+            {
+                return 1;
+            }
+            let area = region.width as usize * region.length as usize;
+            let num_filled: usize = zip(region.num_presents, present_sizes)
+                .map(|(n, s)| n as usize * s as usize)
+                .sum();
+            if num_filled >= area {
+                return 0;
+            }
+            println!("borderline region: {:?}", region);
             let mut num_presents = region
                 .num_presents
                 .into_iter()
