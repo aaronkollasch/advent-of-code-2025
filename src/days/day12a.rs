@@ -197,7 +197,7 @@ impl Map {
     }
 }
 
-pub fn get_result(input: &[u8]) -> usize {
+pub fn get_result_full(input: &[u8]) -> usize {
     let mut presents = [Present::default(); NUM_PRESENTS];
     let mut regions: Vec<Region> = Vec::with_capacity(128);
     let lines = input.split(|&b| b == b'\n').filter(|&l| !l.is_empty());
@@ -306,6 +306,55 @@ pub fn get_result(input: &[u8]) -> usize {
         .sum()
 }
 
+pub fn get_result(input: &[u8]) -> usize {
+    let mut present_sizes: [u8; NUM_PRESENTS] = Default::default();
+    let mut num_presents: [u8; NUM_PRESENTS] = Default::default();
+    input
+        .split(|&b| b == b'\n')
+        .filter(|&l| !l.is_empty())
+        .enumerate()
+        .map(|(i_line, line)| {
+            if i_line < 24 {
+                let (i_shape, i_line) = i_line.div_rem(&4);
+                if i_line > 0 {
+                    line.iter().for_each(|&c| {
+                        present_sizes[i_shape] += match c {
+                            MAP_FILL => 1,
+                            _ => 0,
+                        };
+                    });
+                }
+                0
+            } else {
+                let mut words = line.split(|&c| c == b' ');
+                let (width, length) = words
+                    .next()
+                    .unwrap()
+                    .split(|&c| c == b'x' || c == b':')
+                    .take(2)
+                    .map(parse::<usize>)
+                    .collect_tuple()
+                    .unwrap();
+                words.map(parse::<u8>).enumerate().for_each(|(i, c)| {
+                    num_presents[i] = c;
+                });
+                let num_squares = (width / 3) * (length / 3);
+                if num_presents.into_iter().map(|p| p as usize).sum::<usize>() <= num_squares {
+                    return 1;
+                }
+                let area = width * length;
+                let num_filled: usize = zip(num_presents, present_sizes)
+                    .map(|(n, s)| n as usize * s as usize)
+                    .sum();
+                if num_filled >= area {
+                    return 0;
+                }
+                0
+            }
+        })
+        .sum()
+}
+
 pub fn main() {
     print!("{} ", get_result(include_bytes!("../../inputs/day12.txt")));
 }
@@ -316,7 +365,7 @@ mod tests {
 
     #[test]
     fn correct_example_result() {
-        let result = get_result(include_bytes!("../../inputs/day12.example.txt"));
+        let result = get_result_full(include_bytes!("../../inputs/day12.example.txt"));
         assert_eq!(result, 2);
     }
 
