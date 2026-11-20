@@ -81,7 +81,7 @@ impl fmt::Debug for Map {
 impl Map {
     pub fn new(width: u8, length: u8) -> Self {
         let mut edge_positions = HashSet::new();
-        (0..3).for_each(|i| {
+        (0..8).for_each(|i| {
             edge_positions.insert((i, 0));
         });
         (0..3).for_each(|i| {
@@ -106,7 +106,6 @@ impl Map {
     }
 
     fn check_present(&self, present: Present, x: u8, y: u8) -> u8 {
-        // TODO: weight positions by number of neighbors
         let mut edge_positions_covered_count = 0;
         for i in 0..3 {
             for j in 0..3 {
@@ -319,7 +318,7 @@ mod tests {
     #[test]
     fn correct_example_result() {
         let result = get_result(include_bytes!("../../inputs/day12.example.txt"));
-        assert_eq!(result, 1); // TODO: it's actually 2
+        assert_eq!(result, 2);
     }
 
     #[test]
