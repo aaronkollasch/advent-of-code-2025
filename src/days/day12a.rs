@@ -5,7 +5,6 @@ use crate::common::parse;
 use hashbrown::HashSet;
 use itertools::Itertools;
 use num::Integer;
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 type Present = [[u8; 3]; 3];
 
@@ -245,7 +244,7 @@ pub fn get_result(input: &[u8]) -> usize {
     });
 
     regions
-        .into_par_iter()
+        .into_iter()
         .map(|region| {
             let num_squares = (region.width / 3) as usize * (region.length / 3) as usize;
             if region
