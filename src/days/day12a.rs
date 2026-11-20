@@ -15,17 +15,17 @@ fn rotate_ninety(present: &mut Present) {
             (present[i][j], present[j][i]) = (present[j][i], present[i][j])
         }
     }
-    for i in 0..3 {
+    for row_i in present.iter_mut().take(3) {
         for j in 0..3 / 2 {
-            (present[i][j], present[i][3 - 1 - j]) = (present[i][3 - 1 - j], present[i][j])
+            (row_i[j], row_i[3 - 1 - j]) = (row_i[3 - 1 - j], row_i[j])
         }
     }
 }
 
 fn flip(present: &mut Present) {
-    for i in 0..3 {
+    for row_i in present.iter_mut().take(3) {
         for j in 0..3 {
-            (present[i][j], present[i][3 - 1 - j]) = (present[i][3 - 1 - j], present[i][j])
+            (row_i[j], row_i[3 - 1 - j]) = (row_i[3 - 1 - j], row_i[j])
         }
     }
 }
